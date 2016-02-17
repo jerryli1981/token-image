@@ -10,7 +10,7 @@ from progressbar import ProgressBar
 import codecs
 
 
-Dir = "./sogou/SogouCA"
+Dir = "./sogou/SogouCAS"
 
 sport_url = set()
 finance_url = set()
