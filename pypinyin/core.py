@@ -247,8 +247,6 @@ def single_stroke(han, errors='default'):
 
     stroke = STROKE_DICT[num]
 
-    print stroke
-
     return stroke
 
 def phrases_pinyin(phrases, style, heteronym, errors='default'):

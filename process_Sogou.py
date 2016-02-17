@@ -5,6 +5,8 @@ import time
 import jieba
 from bs4 import BeautifulSoup as bs
 
+from pypinyin import lazy_stroke
+
 from progressbar import ProgressBar
 
 import codecs
@@ -54,7 +56,11 @@ pbar = ProgressBar(maxval=totfiles).start()
 
 
 cnt = 0
-with open(Dir+'_Combine.txt',"w") as fid:
+num_train = 0
+num_test = 0
+with open(Dir+'_Combine.txt',"w") as fid, \
+    open("train.csv", 'w') as tr, \
+    open("test.csv", 'w') as te:
 
     for t, name in enumerate(os.listdir(Dir)): 
         time.sleep(0.01)
@@ -70,6 +76,9 @@ with open(Dir+'_Combine.txt',"w") as fid:
                 if content == '' or url_mention == '':
                     continue
 
+                flag = True
+                exp = None
+
                 if "http://sports." in url_mention and url_mention not in sport_url:
                     sport_url.add(url_mention)
 
@@ -78,6 +87,13 @@ with open(Dir+'_Combine.txt',"w") as fid:
                     if seqlen > 30:
                         cnt += 1
                         fid.write("1" + "\t" + content.strip()+'\n')
+
+                        content = content.decode('utf-8')
+
+                        toks = content.split(" ")
+                        strokes = lazy_stroke(toks, "ignore")
+                        strokes = ''.join(strokes)
+                        exp = "\"1\"" + str(',') + "\""+str(strokes)+"\""
 
                 elif "http://ent." in url_mention and url_mention not in ent_url:
                     ent_url.add(url_mention)
@@ -88,6 +104,13 @@ with open(Dir+'_Combine.txt',"w") as fid:
                         cnt += 1
                         fid.write("2" + "\t" + content.strip()+'\n')
 
+                        content = content.decode('utf-8')
+                        toks = content.split(" ")
+
+                        strokes = lazy_stroke(toks, "ignore")
+                        strokes = ''.join(strokes)
+                        exp = "\"2\"" + str(',') + "\""+str(strokes)+"\""
+
                 elif "http://auto." in url_mention and url_mention not in auto_url:
                     auto_url.add(url_mention)
 
@@ -96,6 +119,13 @@ with open(Dir+'_Combine.txt',"w") as fid:
                     if seqlen > 30:
                         cnt += 1
                         fid.write("3" + "\t" + content.strip()+'\n')
+
+                        content = content.decode('utf-8')
+
+                        toks = content.split(" ")
+                        strokes = lazy_stroke(toks, "ignore")
+                        strokes = ''.join(strokes)
+                        exp = "\"3\"" + str(',') + "\""+str(strokes)+"\""
 
                 elif "http://finance." in url_mention and url_mention not in finance_url:
                     finance_url.add(url_mention)
@@ -106,6 +136,13 @@ with open(Dir+'_Combine.txt',"w") as fid:
                         cnt += 1
                         fid.write("4" + "\t" + content.strip()+'\n')
 
+                        content = content.decode('utf-8')
+
+                        toks = content.split(" ")
+                        strokes = lazy_stroke(toks, "ignore")
+                        strokes = ''.join(strokes)
+                        exp = "\"4\"" + str(',') + "\""+str(strokes)+"\""
+
                 elif "http://tech." in url_mention and url_mention not in tech_url:
                     tech_url.add(url_mention)
 
@@ -113,6 +150,24 @@ with open(Dir+'_Combine.txt',"w") as fid:
                     if seqlen > 30:
                         cnt += 1
                         fid.write("5" + "\t" + content.strip()+'\n')
+
+                        content = content.decode('utf-8')
+
+                        toks = content.split(" ")
+                        strokes = lazy_stroke(toks, "ignore")
+                        strokes = ''.join(strokes)
+                        exp = "\"5\"" + str(',') + "\""+str(strokes)+"\""
+                else:
+                    flag = False
+
+                if flag and exp != None:
+
+                    if cnt % 100 !=0:
+                        tr.write(exp+"\n")
+                        num_train += 1
+                    else:
+                        te.write(exp+"\n")
+                        num_test += 1
 
 pbar.finish()
 
