@@ -12,7 +12,7 @@ from progressbar import ProgressBar
 import codecs
 
 
-Dir = "./sogou/SogouCAS"
+Dir = "./data/SogouCAS"
 
 sport_url = set()
 finance_url = set()
@@ -51,16 +51,20 @@ def seg(content):
     return content, len(li)
 
 
+
 totfiles = len(os.listdir(Dir))
 pbar = ProgressBar(maxval=totfiles).start()
 
 
-cnt = 0
+sport_cnt = 0
+ent_cnt = 0
+auto_cnt = 0
+fin_cnt = 0
+it_cnt = 0
+
 num_train = 0
 num_test = 0
-with open(Dir+'_Combine.txt',"w") as fid, \
-    open("train.csv", 'w') as tr, \
-    open("test.csv", 'w') as te:
+with open("./data/train.csv", 'w') as tr, open("./data/test.csv", 'w') as te:
 
     for t, name in enumerate(os.listdir(Dir)): 
         time.sleep(0.01)
@@ -76,103 +80,150 @@ with open(Dir+'_Combine.txt',"w") as fid, \
                 if content == '' or url_mention == '':
                     continue
 
-                flag = True
-                exp = None
-
                 if "http://sports." in url_mention and url_mention not in sport_url:
                     sport_url.add(url_mention)
 
                     content, seqlen = seg(content)
 
                     if seqlen > 30:
-                        cnt += 1
-                        fid.write("1" + "\t" + content.strip()+'\n')
+                        sport_cnt += 1
+                        #fid.write("1" + "\t" + content.strip()+'\n')
 
-                        content = content.decode('utf-8')
+                        if sport_cnt <= 50000:
 
-                        toks = content.split(" ")
-                        strokes = lazy_stroke(toks, "ignore")
-                        strokes = ''.join(strokes)
-                        exp = "\"1\"" + str(',') + "\""+str(strokes)+"\""
+                            content = content.decode('utf-8')
+                            toks = content.split(" ")
+                            strokes = lazy_stroke(toks, "ignore")
+                            strokes = ''.join(strokes)
+                            exp = "\"1\"" + str(',') + "\""+str(strokes)+"\""
+
+                            if sport_cnt % 10 !=0:
+                                tr.write(exp+"\n")
+                                num_train += 1
+                            else:
+                                te.write(exp+"\n")
+                                num_test += 1
+                                
 
                 elif "http://ent." in url_mention and url_mention not in ent_url:
                     ent_url.add(url_mention)
 
+                    
                     content, seqlen = seg(content)
 
                     if seqlen > 30:
-                        cnt += 1
-                        fid.write("2" + "\t" + content.strip()+'\n')
+                        ent_cnt += 1
+                        #fid.write("2" + "\t" + content.strip()+'\n')
 
-                        content = content.decode('utf-8')
-                        toks = content.split(" ")
+                        if ent_cnt <= 50000:
 
-                        strokes = lazy_stroke(toks, "ignore")
-                        strokes = ''.join(strokes)
-                        exp = "\"2\"" + str(',') + "\""+str(strokes)+"\""
+                            content = content.decode('utf-8')
+                            toks = content.split(" ")
+
+                            strokes = lazy_stroke(toks, "ignore")
+                            strokes = ''.join(strokes)
+                            exp = "\"2\"" + str(',') + "\""+str(strokes)+"\""
+
+                            if ent_cnt % 10 !=0:
+                                tr.write(exp+"\n")
+                                num_train += 1
+                            else:
+                                te.write(exp+"\n")
+                                num_test += 1
+
 
                 elif "http://auto." in url_mention and url_mention not in auto_url:
                     auto_url.add(url_mention)
 
+                    
                     content, seqlen = seg(content)
 
                     if seqlen > 30:
-                        cnt += 1
-                        fid.write("3" + "\t" + content.strip()+'\n')
+                        auto_cnt += 1
+                        #fid.write("3" + "\t" + content.strip()+'\n')
 
-                        content = content.decode('utf-8')
+                        if auto_cnt <= 50000:
 
-                        toks = content.split(" ")
-                        strokes = lazy_stroke(toks, "ignore")
-                        strokes = ''.join(strokes)
-                        exp = "\"3\"" + str(',') + "\""+str(strokes)+"\""
+                            content = content.decode('utf-8')
+
+                            toks = content.split(" ")
+                            strokes = lazy_stroke(toks, "ignore")
+                            strokes = ''.join(strokes)
+                            exp = "\"3\"" + str(',') + "\""+str(strokes)+"\""
+
+                            if auto_cnt % 10 !=0:
+                                tr.write(exp+"\n")
+                                num_train += 1
+                            else:
+                                te.write(exp+"\n")
+                                num_test += 1
+   
 
                 elif "http://finance." in url_mention and url_mention not in finance_url:
                     finance_url.add(url_mention)
 
+                    
                     content, seqlen = seg(content)
 
                     if seqlen > 30:
-                        cnt += 1
-                        fid.write("4" + "\t" + content.strip()+'\n')
+                        fin_cnt += 1
+                        #fid.write("4" + "\t" + content.strip()+'\n')
 
-                        content = content.decode('utf-8')
+                        if fin_cnt <= 50000:
 
-                        toks = content.split(" ")
-                        strokes = lazy_stroke(toks, "ignore")
-                        strokes = ''.join(strokes)
-                        exp = "\"4\"" + str(',') + "\""+str(strokes)+"\""
+                            content = content.decode('utf-8')
 
-                elif "http://tech." in url_mention and url_mention not in tech_url:
+                            toks = content.split(" ")
+                            strokes = lazy_stroke(toks, "ignore")
+                            strokes = ''.join(strokes)
+                            exp = "\"4\"" + str(',') + "\""+str(strokes)+"\""
+
+
+                            if fin_cnt % 10 !=0:
+                                tr.write(exp+"\n")
+                                num_train += 1
+                            else:
+                                te.write(exp+"\n")
+                                num_test += 1
+
+
+                elif ("http://tech." in url_mention or "http://it." in url_mention) and url_mention not in tech_url:
                     tech_url.add(url_mention)
 
                     content, seqlen = seg(content)
                     if seqlen > 30:
-                        cnt += 1
-                        fid.write("5" + "\t" + content.strip()+'\n')
+                        it_cnt += 1
+                        
+                        #fid.write("5" + "\t" + content.strip()+'\n')
 
-                        content = content.decode('utf-8')
 
-                        toks = content.split(" ")
-                        strokes = lazy_stroke(toks, "ignore")
-                        strokes = ''.join(strokes)
-                        exp = "\"5\"" + str(',') + "\""+str(strokes)+"\""
-                else:
-                    flag = False
+                        if it_cnt <= 50000:
 
-                if flag and exp != None:
+                            content = content.decode('utf-8')
 
-                    if cnt % 100 !=0:
-                        tr.write(exp+"\n")
-                        num_train += 1
-                    else:
-                        te.write(exp+"\n")
-                        num_test += 1
+                            toks = content.split(" ")
+                            strokes = lazy_stroke(toks, "ignore")
+                            strokes = ''.join(strokes)
+                            exp = "\"5\"" + str(',') + "\""+str(strokes)+"\""
 
+                            if it_cnt % 10 !=0:
+                                tr.write(exp+"\n")
+                                num_train += 1
+                            else:
+                                te.write(exp+"\n")
+                                num_test += 1
+
+                            
 pbar.finish()
 
 print '\n---------------'
-print 'Multiple_File_Combine_Ori-Len',"\t",cnt
-print 'Final_Combine_File_Len',len([line for line in open(Dir+'_Combine.txt')])
+print 'Sport_cnt',"\t",sport_cnt
+print 'Fin_cnt',"\t",fin_cnt
+print 'Ent_cnt',"\t",ent_cnt
+print 'Auto_cnt',"\t",auto_cnt
+print 'Tech_cnt',"\t",it_cnt
+
+print 'Train_cnt',"\t",num_train
+print 'Test_cnt',"\t",num_test
 print '---------------\n'
 
