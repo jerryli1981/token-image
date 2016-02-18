@@ -218,7 +218,7 @@ function main.trainlog(train)
 	    ", err: "..string.format("%.2e",train.error)..
 	    ", obj: "..string.format("%.2e",train.objective)
 
-      --print(msg)
+      print(msg)
    
       main.clock.log = os.time()
    end
@@ -230,13 +230,12 @@ function main.testlog(test)
       collectgarbage()
    end
    if (os.time() - main.clock.log) >= (config.main.logtime or 1) then
-      --[[
+      
       print("n: "..test.n..
 	       ", e: "..string.format("%.2e",test.e)..
 	       ", l: "..string.format("%.2e",test.l)..
 	       ", err: "..string.format("%.2e",test.err)..
 	       ", obj: "..string.format("%.2e",test.objective))
-      --]]
       main.clock.log = os.time()
    end
 end
