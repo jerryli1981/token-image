@@ -10,7 +10,7 @@ config = {}
 
 local alphabet = "hspnz"
 
-seq_length = 10000
+seq_length = 2000
 
 
 -- Training data
@@ -30,30 +30,30 @@ config.val_data.batch_size = 128
 -- The model
 config.model = {}
 -- #alphabet x 1014
-config.model[1] = {module = "nn.TemporalConvolution", inputFrameSize = #alphabet, outputFrameSize = 256, kW = 20}
+config.model[1] = {module = "nn.TemporalConvolution", inputFrameSize = #alphabet, outputFrameSize = 256, kW = 10}
 config.model[2] = {module = "nn.Threshold"}
-config.model[3] = {module = "nn.TemporalMaxPooling", kW = 10, dW = 10}
+config.model[3] = {module = "nn.TemporalMaxPooling", kW = 5, dW = 5}
 -- 336 x 256
-config.model[4] = {module = "nn.TemporalConvolution", inputFrameSize = 256, outputFrameSize = 256, kW = 20}
+config.model[4] = {module = "nn.TemporalConvolution", inputFrameSize = 256, outputFrameSize = 256, kW = 10}
 config.model[5] = {module = "nn.Threshold"}
-config.model[6] = {module = "nn.TemporalMaxPooling", kW = 10, dW = 10}
+config.model[6] = {module = "nn.TemporalMaxPooling", kW = 5, dW = 5}
 -- 110 x 256
-config.model[7] = {module = "nn.TemporalConvolution", inputFrameSize = 256, outputFrameSize = 256, kW = 10}
+config.model[7] = {module = "nn.TemporalConvolution", inputFrameSize = 256, outputFrameSize = 256, kW = 7}
 config.model[8] = {module = "nn.Threshold"}
 -- 108 x 256
-config.model[9] = {module = "nn.TemporalConvolution", inputFrameSize = 256, outputFrameSize = 256, kW = 10}
+config.model[9] = {module = "nn.TemporalConvolution", inputFrameSize = 256, outputFrameSize = 256, kW = 7}
 config.model[10] = {module = "nn.Threshold"}
 -- 106 x 256
-config.model[11] = {module = "nn.TemporalConvolution", inputFrameSize = 256, outputFrameSize = 256, kW = 10}
+config.model[11] = {module = "nn.TemporalConvolution", inputFrameSize = 256, outputFrameSize = 256, kW = 7}
 config.model[12] = {module = "nn.Threshold"}
 -- 104 x 256
-config.model[13] = {module = "nn.TemporalConvolution", inputFrameSize = 256, outputFrameSize = 256, kW = 10}
+config.model[13] = {module = "nn.TemporalConvolution", inputFrameSize = 256, outputFrameSize = 256, kW = 7}
 config.model[14] = {module = "nn.Threshold"}
-config.model[15] = {module = "nn.TemporalMaxPooling", kW = 10, dW = 10}
+config.model[15] = {module = "nn.TemporalMaxPooling", kW = 7, dW = 7}
 -- 34 x 256
-config.model[16] = {module = "nn.Reshape", size = 256 * 6}
+config.model[16] = {module = "nn.Reshape", size = 256 * 7}
 -- 8704
-config.model[17] = {module = "nn.Linear", inputSize = 256 * 6, outputSize = 1024}
+config.model[17] = {module = "nn.Linear", inputSize = 256 * 7, outputSize = 1024}
 config.model[18] = {module = "nn.Threshold"}
 config.model[19] = {module = "nn.Dropout", p = 0.5}
 -- 1024

@@ -11,7 +11,8 @@ require("data")
 require("model")
 require("train")
 require("test")
-require("config")
+require("gnuplot")
+require("config_stroke_lstm")
 
 require('lfs')
 

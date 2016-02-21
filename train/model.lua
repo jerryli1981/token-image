@@ -138,8 +138,18 @@ function Model:createModule(m)
       return Model:createLogSoftMax(m)
    elseif m.module == "nn.LookupTable" then
       return Model:createLookupTable(m)
+   elseif m.module == "nn.SplitTable" then
+      return Model:createSplitTable(m)
+   elseif m.module == "nn.JoinTable" then
+      return Model:createJoinTable(m)
+   elseif m.module == "nn.Transpose" then
+      return Model:createTranspose(m)
    elseif m.module == "nn.Tanh" then
       return Model:createTanh(m)
+   elseif m.module == "nn.Sequencer" then
+      return Model:createSequencer(m)
+   elseif m.module == "nn.Mean" then
+      return Model:createMean(m)
    else
       error("Unrecognized module for creation: "..tostring(m.module))
    end
@@ -163,12 +173,47 @@ function Model:makeCleanModule(m)
       return Model:toDropout(m)
    elseif torch.typename(m) == "nn.LookupTable" then
       return Model:toLookupTable(m)
+   elseif torch.typename(m) == "nn.Transpose" then
+      return Model:toTranspose(m)
+   elseif torch.typename(m) == "nn.SplitTable" then
+      return Model:toSplitTable(m)
+   elseif torch.typename(m) == "nn.JoinTable" then
+      return Model:toJoinTable(m)
+   elseif torch.typename(m) == "nn.Sequencer" then
+      return Model:toSequencer(m)
+   elseif torch.typename(m) == "nn.Mean" then
+      return Model:toMean(m)
    elseif torch.typename(m) == "nn.Tanh" then
       return Model:newTanh()
    else
       error("Module unrecognized")
    end
 end
+
+function Model:createSequencer(m)
+   --local r = nn.Recurrent(m.hiddenSize, nn.Identity(), 
+      --nn.Linear(m.hiddenSize, m.hiddenSize), nn.Sigmoid(), m.seqLength)
+   local r = nn.FastLSTM(m.inputSize, m.hiddenSize)
+   return nn.Sequencer(r)
+end
+
+
+function Model:createTranspose(m)
+   return nn.Transpose(m.dimension_1, m.dimension_2)
+end
+
+function Model:createMean(m)
+   return nn.Mean(m.dimension)
+end
+
+function Model:createSplitTable(m)
+   return nn.SplitTable(m.dimension, m.nInputDims)
+end
+
+function Model:createJoinTable(m)
+   return nn.JoinTable(m.dimension)
+end
+
 
 -- Create new LookupTable module
 function Model:createLookupTable(m)
@@ -182,7 +227,7 @@ end
 
 -- Create a new reshape model
 function Model:createReshape(m)
-   return nn.Reshape(m.size)
+   return nn.Reshape(m.dimension1, m.dimension2, m.dimension3)
 end
 
 -- Create a new linear model
@@ -265,4 +310,29 @@ function Model:toLookupTable(m)
    local new = nn.LookupTable(m.weight:size(1), m.weight:size(2))
    new.weight:copy(m.weight)
    return new
+end
+
+function Model:toTranspose(m)
+   local new = nn.Transpose(m.dimension_1, m.dimension_2)
+   return new
+end
+
+function Model:toSplitTable(m)
+   local new = nn.SplitTable(m.dimension, m.nInputDims)
+   return new
+end
+
+function Model:toJoinTable(m)
+   local new = nn.JoinTable(m.dimension)
+   return new
+end
+
+function Model:toMean(m)
+   return nn.Mean(m.dimension)
+end
+
+function Model:toSequencer(m)
+   local r = m.module
+   return nn.Sequencer(r)
+
 end
