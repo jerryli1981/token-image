@@ -12,8 +12,8 @@ config = {}
 
 local alphabet = "hspnz"
 
-seq_length = 20000
-lstmHiddenSize = 100
+seq_length = 2
+lstmHiddenSize = 3
 nClass = 5
 
 
@@ -40,12 +40,12 @@ config.model[1] = {module = "nn.Transpose", dimension_1 = 2, dimension_2 = 3}
 config.model[2] = {module = "nn.SplitTable", dimension = 1, nInputDims = 2}
 
 -- 2000 x hiddenSize
-config.model[3] = {module = "nn.Sequencer", inputSize=#alphabet, hiddenSize = lstmHiddenSize , seqLength = seq_length}
-config.model[4] = {module = "nn.JoinTable", dimension = 2}
-config.model[5] = {module = "nn.Reshape", dimension1 = 128, dimension2 = seq_length, dimension3 = lstmHiddenSize }
-config.model[6] = {module = "nn.Mean", dimension = 2}
-config.model[7] = {module = "nn.Linear",inputSize = lstmHiddenSize, outputSize = nClass}
-config.model[8] = {module = "nn.LogSoftMax"}
+--config.model[3] = {module = "nn.Sequencer", inputSize=#alphabet, hiddenSize = lstmHiddenSize , seqLength = seq_length}
+--config.model[4] = {module = "nn.JoinTable", dimension = 2}
+--config.model[5] = {module = "nn.Reshape", dimension1 = 128, dimension2 = seq_length, dimension3 = lstmHiddenSize }
+--config.model[6] = {module = "nn.Mean", dimension = 2}
+--config.model[7] = {module = "nn.Linear",inputSize = lstmHiddenSize, outputSize = nClass}
+--config.model[8] = {module = "nn.LogSoftMax"}
 
 
 -- The loss

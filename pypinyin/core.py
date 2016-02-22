@@ -275,7 +275,7 @@ def _pinyin(words, style, heteronym, errors):
     pys = []
     # 初步过滤没有拼音的字符
     if RE_HANS.match(words):
-        pys = phrases_stroke(words, style=style, heteronym=heteronym,
+        pys = phrases_pinyin(words, style=style, heteronym=heteronym,
                              errors=errors)
         return pys
 

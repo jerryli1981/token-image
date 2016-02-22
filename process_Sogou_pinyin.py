@@ -5,7 +5,7 @@ import time
 import jieba
 from bs4 import BeautifulSoup as bs
 
-from pypinyin import lazy_stroke
+from pypinyin import lazy_pinyin
 
 from progressbar import ProgressBar
 
@@ -64,7 +64,7 @@ it_cnt = 0
 
 num_train = 0
 num_test = 0
-with open("./data/train.csv", 'w') as tr, open("./data/test.csv", 'w') as te:
+with open("./data/train_py.csv", 'w') as tr, open("./data/test_py.csv", 'w') as te:
 
     for t, name in enumerate(os.listdir(Dir)): 
         time.sleep(0.01)
@@ -93,9 +93,10 @@ with open("./data/train.csv", 'w') as tr, open("./data/test.csv", 'w') as te:
 
                             content = content.decode('utf-8')
                             toks = content.split(" ")
-                            strokes = lazy_stroke(toks, "ignore")
-                            strokes = ''.join(strokes)
-                            exp = "\"1\"" + str(',') + "\""+str(strokes)+"\""
+                            pys = lazy_pinyin(toks,errors='ignore')
+                            pys = ''.join(pys)
+
+                            exp = "\"1\"" + str(',') + "\""+str(pys)+"\""
 
                             if sport_cnt % 10 !=0:
                                 tr.write(exp+"\n")
@@ -120,9 +121,9 @@ with open("./data/train.csv", 'w') as tr, open("./data/test.csv", 'w') as te:
                             content = content.decode('utf-8')
                             toks = content.split(" ")
 
-                            strokes = lazy_stroke(toks, "ignore")
-                            strokes = ''.join(strokes)
-                            exp = "\"2\"" + str(',') + "\""+str(strokes)+"\""
+                            pys = lazy_pinyin(toks,errors='ignore')
+                            pys = ''.join(pys)
+                            exp = "\"2\"" + str(',') + "\""+str(pys)+"\""
 
                             if ent_cnt % 10 !=0:
                                 tr.write(exp+"\n")
@@ -147,9 +148,9 @@ with open("./data/train.csv", 'w') as tr, open("./data/test.csv", 'w') as te:
                             content = content.decode('utf-8')
 
                             toks = content.split(" ")
-                            strokes = lazy_stroke(toks, "ignore")
-                            strokes = ''.join(strokes)
-                            exp = "\"3\"" + str(',') + "\""+str(strokes)+"\""
+                            pys = lazy_pinyin(toks,errors='ignore')
+                            pys = ''.join(pys)
+                            exp = "\"3\"" + str(',') + "\""+str(pys)+"\""
 
                             if auto_cnt % 10 !=0:
                                 tr.write(exp+"\n")
@@ -174,9 +175,9 @@ with open("./data/train.csv", 'w') as tr, open("./data/test.csv", 'w') as te:
                             content = content.decode('utf-8')
 
                             toks = content.split(" ")
-                            strokes = lazy_stroke(toks, "ignore")
-                            strokes = ''.join(strokes)
-                            exp = "\"4\"" + str(',') + "\""+str(strokes)+"\""
+                            pys = lazy_pinyin(toks,errors='ignore')
+                            pys = ''.join(pys)
+                            exp = "\"4\"" + str(',') + "\""+str(pys)+"\""
 
 
                             if fin_cnt % 10 !=0:
@@ -202,9 +203,9 @@ with open("./data/train.csv", 'w') as tr, open("./data/test.csv", 'w') as te:
                             content = content.decode('utf-8')
 
                             toks = content.split(" ")
-                            strokes = lazy_stroke(toks, "ignore")
-                            strokes = ''.join(strokes)
-                            exp = "\"5\"" + str(',') + "\""+str(strokes)+"\""
+                            pys = lazy_pinyin(toks,errors='ignore')
+                            pys = ''.join(pys)
+                            exp = "\"5\"" + str(',') + "\""+str(pys)+"\""
 
                             if it_cnt % 10 !=0:
                                 tr.write(exp+"\n")
