@@ -57,8 +57,8 @@ end
 function Data:getBatch(inputs, labels, data, extra)
    local data = data or self.data
    local extra = extra or self.extra
-   --local inputs = inputs or torch.Tensor(self.batch_size, #self.alphabet, self.length)
-   local inputs = inputs or torch.Tensor(self.batch_size, self.length)
+   local inputs = inputs or torch.Tensor(self.batch_size, #self.alphabet, self.length)
+   --local inputs = inputs or torch.Tensor(self.batch_size, self.length)
    local labels = labels or torch.Tensor(inputs:size(1))
 
    for i = 1, inputs:size(1) do
@@ -105,8 +105,8 @@ function Data:getBatch(inputs, labels, data, extra)
 	 end
       end
       -- Quantize the string
-      --self:stringToTensor(s, self.length, inputs:select(1, i))
-      self:stringToCharIdx(s, self.length, inputs:select(1, i))
+      self:sequenceToOnehot(s, self.length, inputs:select(1, i))
+      --self:sequenceToCharIdx(s, self.length, inputs:select(1, i))
    end
 
    return inputs, labels
@@ -120,16 +120,16 @@ function Data:iterator(static, data)
    if static == nil then static = true end
 
    if static then
-      --inputs = torch.Tensor(self.batch_size, #self.alphabet, self.length)
-      inputs = torch.Tensor(self.batch_size, self.length)
+      inputs = torch.Tensor(self.batch_size, #self.alphabet, self.length)
+      --inputs = torch.Tensor(self.batch_size, self.length)
       labels = torch.Tensor(inputs:size(1))
    end
 
    return function()
       if data.index[i] == nil then return end
 
-      --local inputs = inputs or torch.Tensor(self.batch_size, #self.alphabet, self.length)
-      local inputs = inputs or torch.Tensor(self.batch_size, self.length)
+      local inputs = inputs or torch.Tensor(self.batch_size, #self.alphabet, self.length)
+      --local inputs = inputs or torch.Tensor(self.batch_size, self.length)
       local labels = labels or torch.Tensor(inputs:size(1))
 
       local n = 0
@@ -147,8 +147,8 @@ function Data:iterator(static, data)
 	 for l = data.index[i][j]:size(1) - 1, 1, -1 do
 	    s = s.." "..ffi.string(torch.data(data.content:narrow(1, data.index[i][j][l], 1)))
 	 end
-	 --local data = self:stringToTensor(s, self.length, inputs:select(1, k))
-   local data = self:stringToCharIdx(s, self.length, inputs:select(1, k))
+	 local data = self:sequenceToOnehot(s, self.length, inputs:select(1, k))
+   --local data = self:sequenceToCharIdx(s, self.length, inputs:select(1, k))
 	 labels[k] = i
       end
 
@@ -156,7 +156,7 @@ function Data:iterator(static, data)
    end
 end
 
-function Data:stringToTensor(str, l, input, p)
+function Data:sequenceToOnehot(str, l, input, p)
    local s = str:lower()
    local l = l or #s
    local t = input or torch.Tensor(#self.alphabet, l)
@@ -170,7 +170,7 @@ function Data:stringToTensor(str, l, input, p)
 end
 
 
-function Data:stringToCharIdx(s, l, input)
+function Data:sequenceToCharIdx(s, l, input)
   
   s = s:gsub("%s+", "")
   --trim

@@ -12,7 +12,7 @@ require("model")
 require("train")
 require("test")
 require("gnuplot")
-require("config_stroke_lstm")
+
 
 require('lfs')
 
@@ -29,6 +29,17 @@ main = {}
 function main.main()
 
    opt = main.argparse()
+
+   if opt.format == "stk" then
+      print("Run stroke format...")
+      require("config_stroke_lstm")
+   elseif opt.format == "py" then
+      print("Run pinyin format...")
+      require("config_pinyin_cnn")
+   else 
+      error("Wrong format")
+   end
+
    -- Setting the device
    if opt.device > 0 then
       require("cutorch")
@@ -43,6 +54,8 @@ function main.main()
    if opt.debug > 0 then
       dbg = require("debugger")
    end
+
+   
 
    main.clock = {}
    main.clock.log = 0
@@ -62,6 +75,7 @@ function main.argparse()
    cmd:option("-resume",0,"Resumption point in epoch. 0 means not resumption.")
    cmd:option("-debug",0,"debug. 0 means not debug.")
    cmd:option("-device",0,"device. 0 means cpu.")
+   cmd:option("-format","","stk or py")
    cmd:text()
 
    -- Parse the option

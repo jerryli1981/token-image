@@ -65,7 +65,7 @@ function Train:run(epoches,logfunc)
    end
    -- The loop
    for i = 1,epoches do
-      self:batchStep_charIdx()
+      self:batchStep()
       if logfunc then logfunc(self,i) end
    end
 end
@@ -145,7 +145,6 @@ function Train:batchStep_charIdx()
    self.clock = sys.clock()
    -- Forward propagation
    self.output = self.model:forward(self.batch)
-   dbg()
    self.objective = self.loss:forward(self.output,self.labels)
    if type(self.objective) ~= "number" then self.objective = self.objective[1] end
    self.max, self.decision = self.output:double():max(2)

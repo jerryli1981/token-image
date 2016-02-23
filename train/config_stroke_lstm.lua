@@ -19,14 +19,14 @@ nClass = 5
 
 -- Training data
 config.train_data = {}
-config.train_data.file = paths.concat(paths.cwd(),"../data/train.t7b")
+config.train_data.file = paths.concat(paths.cwd(),"../data/train_stk.t7b")
 config.train_data.alphabet = alphabet
 config.train_data.length = seq_length
 config.train_data.batch_size = 128
 
 -- Test data
 config.val_data = {}
-config.val_data.file =  paths.concat(paths.cwd(),"../data/test.t7b")
+config.val_data.file =  paths.concat(paths.cwd(),"../data/test_stk.t7b")
 config.val_data.alphabet = alphabet
 config.val_data.length = seq_length
 config.val_data.batch_size = 128
@@ -40,12 +40,12 @@ config.model[1] = {module = "nn.Transpose", dimension_1 = 2, dimension_2 = 3}
 config.model[2] = {module = "nn.SplitTable", dimension = 1, nInputDims = 2}
 
 -- 2000 x hiddenSize
---config.model[3] = {module = "nn.Sequencer", inputSize=#alphabet, hiddenSize = lstmHiddenSize , seqLength = seq_length}
---config.model[4] = {module = "nn.JoinTable", dimension = 2}
---config.model[5] = {module = "nn.Reshape", dimension1 = 128, dimension2 = seq_length, dimension3 = lstmHiddenSize }
---config.model[6] = {module = "nn.Mean", dimension = 2}
---config.model[7] = {module = "nn.Linear",inputSize = lstmHiddenSize, outputSize = nClass}
---config.model[8] = {module = "nn.LogSoftMax"}
+config.model[3] = {module = "nn.Sequencer", inputSize=#alphabet, hiddenSize = lstmHiddenSize , seqLength = seq_length}
+config.model[4] = {module = "nn.JoinTable", dimension = 2}
+config.model[5] = {module = "nn.Reshape", dimension1 = 128, dimension2 = seq_length, dimension3 = lstmHiddenSize }
+config.model[6] = {module = "nn.Mean", dimension = 2}
+config.model[7] = {module = "nn.Linear",inputSize = lstmHiddenSize, outputSize = nClass}
+config.model[8] = {module = "nn.LogSoftMax"}
 
 
 -- The loss
