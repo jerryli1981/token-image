@@ -10,6 +10,8 @@ import pypinyin
 
 from progressbar import ProgressBar
 
+import re
+
 import codecs
 
 import itertools
@@ -31,7 +33,7 @@ Dic = {'Ａ':'A','Ｂ':'B','Ｃ':'C','Ｄ':'D','Ｅ':'E','Ｆ':'F','Ｇ':'G','�
 dot = {'。','（','）','！','「','」','，','、','；','：','”','“','～',\
         '＜','＞','．','é','︶','『','』','﹗','ī','ō','／',"〔", '〕','｜',\
         "？","＠","｛","｝","￥","《","》",'…','【','】','︿','＃','＄','％','＆','＊','＋','⊙','［','］',\
-       "［","］","—","·","－", '"'}
+       "［","］","—","·","－"}
 
 def replace_all(text, dic):
     for i, j in dic.iteritems():
@@ -104,7 +106,9 @@ if __name__ == "__main__":
                     content = j.text
 
                     if content == '' or url_mention == '':
-                        continue                        
+                        continue    
+
+                    content = re.sub(r'"', "", content)                
 
                     if "http://sports." in url_mention and url_mention not in sport_url:
                         sport_url.add(url_mention)
