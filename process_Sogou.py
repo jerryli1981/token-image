@@ -85,7 +85,7 @@ if __name__ == "__main__":
     elif args.format == "py":
         transfer = pinyin
         style = pypinyin.TONE2
-        error="default"
+        error="ignore"
     else:
         raise("Wrong format")
 
@@ -107,8 +107,6 @@ if __name__ == "__main__":
 
                     if content == '' or url_mention == '':
                         continue    
-
-                    content = re.sub(r'"', "", content)                
 
                     if "http://sports." in url_mention and url_mention not in sport_url:
                         sport_url.add(url_mention)
