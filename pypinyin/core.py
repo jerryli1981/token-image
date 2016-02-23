@@ -408,7 +408,7 @@ def lazy_pinyin(hans, style=NORMAL, errors='default'):
     return list(chain(*pinyin(hans, style=style, heteronym=False,
                               errors=errors)))
 
-def lazy_stroke(hans, errors='default'):
+def lazy_stroke(hans, style=TONE, errors='default'):
 
     strokes = []
     for words in hans:

@@ -6,6 +6,7 @@ import jieba
 from bs4 import BeautifulSoup as bs
 
 from pypinyin import lazy_stroke, pinyin
+import pypinyin
 
 from progressbar import ProgressBar
 
@@ -39,7 +40,7 @@ def replace_all(text, dic):
 
 def seg(content):
 
-    content = j.text.encode('utf-8')
+    content = content.encode('utf-8')
     content = replace_all(content,Dic)
 
     Cut=jieba.cut(''.join(content.split())) #斷詞
@@ -58,7 +59,6 @@ if __name__ == "__main__":
 
     totfiles = len(os.listdir(Dir))
     pbar = ProgressBar(maxval=totfiles).start()
-
 
     sport_cnt = 0
     ent_cnt = 0
@@ -79,8 +79,10 @@ if __name__ == "__main__":
     if args.format == "stk":
         transfer = lazy_stroke
         error="ignore"
+        style = None
     elif args.format == "py":
         transfer = pinyin
+        style = pypinyin.TONE2
         error="default"
     else:
         raise("Wrong format")
@@ -88,10 +90,13 @@ if __name__ == "__main__":
     with open("./data/train_"+args.format+".csv", 'w') as tr, open("./data/test_"+args.format+".csv", 'w') as te:
 
         for t, name in enumerate(os.listdir(Dir)): 
+            if name.startswith('.'):
+                continue
             time.sleep(0.01)
             pbar.update(t + 1)
             From = Dir + '/' + name
             with codecs.open(From, encoding='gbk', errors='ignore') as f:
+
                 soup = bs(f.read(),"html.parser")
                 for i, j in zip(soup.select('url'), soup.select('content')): 
 
@@ -99,7 +104,7 @@ if __name__ == "__main__":
                     content = j.text
 
                     if content == '' or url_mention == '':
-                        continue
+                        continue                        
 
                     if "http://sports." in url_mention and url_mention not in sport_url:
                         sport_url.add(url_mention)
@@ -108,16 +113,14 @@ if __name__ == "__main__":
 
                         if seqlen > 30:
                             sport_cnt += 1
-                            #fid.write("1" + "\t" + content.strip()+'\n')
-
                             if sport_cnt <= 50000:
 
                                 content = content.decode('utf-8')
                                 toks = content.split(" ")
 
-                                pys = transfer(toks, errors=error)
+                                pys = transfer(toks, style=style, errors=error)
 
-                                pys = ''.join(list(itertools.chain(*pys))).encode('utf-8')
+                                pys = ' '.join(list(itertools.chain(*pys))).encode('utf-8')
 
                                 exp = "\"1\"" + str(',') + "\""+pys+"\""
 
@@ -132,20 +135,18 @@ if __name__ == "__main__":
                     elif "http://ent." in url_mention and url_mention not in ent_url:
                         ent_url.add(url_mention)
 
-                        
                         content, seqlen = seg(content)
 
                         if seqlen > 30:
                             ent_cnt += 1
-                            #fid.write("2" + "\t" + content.strip()+'\n')
 
                             if ent_cnt <= 50000:
 
                                 content = content.decode('utf-8')
                                 toks = content.split(" ")
 
-                                pys = transfer(toks, errors=error)
-                                pys = ''.join(list(itertools.chain(*pys))).encode('utf-8')
+                                pys = transfer(toks, style=style, errors=error)
+                                pys = ' '.join(list(itertools.chain(*pys))).encode('utf-8')
                                 exp = "\"2\"" + str(',') + "\""+pys+"\""
 
                                 if ent_cnt % 10 !=0:
@@ -164,15 +165,14 @@ if __name__ == "__main__":
 
                         if seqlen > 30:
                             auto_cnt += 1
-                            #fid.write("3" + "\t" + content.strip()+'\n')
 
                             if auto_cnt <= 50000:
 
                                 content = content.decode('utf-8')
 
                                 toks = content.split(" ")
-                                pys = transfer(toks, errors=error)
-                                pys = ''.join(list(itertools.chain(*pys))).encode('utf-8')
+                                pys = transfer(toks, style=style, errors=error)
+                                pys = ' '.join(list(itertools.chain(*pys))).encode('utf-8')
                                 exp = "\"3\"" + str(',') + "\""+pys+"\""
 
                                 if auto_cnt % 10 !=0:
@@ -191,15 +191,14 @@ if __name__ == "__main__":
 
                         if seqlen > 30:
                             fin_cnt += 1
-                            #fid.write("4" + "\t" + content.strip()+'\n')
 
                             if fin_cnt <= 50000:
 
                                 content = content.decode('utf-8')
 
                                 toks = content.split(" ")
-                                pys = transfer(toks, errors=error)
-                                pys = ''.join(list(itertools.chain(*pys))).encode('utf-8')
+                                pys = transfer(toks, style=style, errors=error)
+                                pys = ' '.join(list(itertools.chain(*pys))).encode('utf-8')
                                 exp = "\"4\"" + str(',') + "\""+pys+"\""
 
 
@@ -213,21 +212,16 @@ if __name__ == "__main__":
 
                     elif ("http://tech." in url_mention or "http://it." in url_mention) and url_mention not in tech_url:
                         tech_url.add(url_mention)
-
                         content, seqlen = seg(content)
                         if seqlen > 30:
                             it_cnt += 1
-                            
-                            #fid.write("5" + "\t" + content.strip()+'\n')
-
-
                             if it_cnt <= 50000:
 
                                 content = content.decode('utf-8')
 
                                 toks = content.split(" ")
-                                pys = transfer(toks, errors=error)
-                                pys = ''.join(list(itertools.chain(*pys))).encode('utf-8')
+                                pys = transfer(toks, style=style, errors=error)
+                                pys = ' '.join(list(itertools.chain(*pys))).encode('utf-8')
                                 exp = "\"5\"" + str(',') + "\""+pys+"\""
 
                                 if it_cnt % 10 !=0:
@@ -236,6 +230,8 @@ if __name__ == "__main__":
                                 else:
                                     te.write(exp+"\n")
                                     num_test += 1
+
+                
 
                                 
     pbar.finish()
