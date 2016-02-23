@@ -85,7 +85,7 @@ if __name__ == "__main__":
     else:
         raise("Wrong format")
 
-    with open("./data/train_py.csv", 'w') as tr, open("./data/test_py.csv", 'w') as te:
+    with open("./data/train_"+args.format+".csv", 'w') as tr, open("./data/test_"+args.format+".csv", 'w') as te:
 
         for t, name in enumerate(os.listdir(Dir)): 
             time.sleep(0.01)
