@@ -29,7 +29,36 @@ main = {}
 -- The main program
 function main.main()
 
-   opt = main.argparse()
+   main.argparse()
+
+   main.clock = {}
+   main.clock.log = 0
+
+   main.new()
+   main.run()
+ 
+end
+
+
+
+-- Parse arguments
+function main.argparse()
+   local cmd = torch.CmdLine()
+
+   -- Options
+   cmd:option("-resume",0,"Resumption point in epoch. 0 means not resumption.")
+   cmd:option("-debug",0,"debug. 0 means not debug.")
+   cmd:option("-device",0,"device. 0 means cpu.")
+   cmd:option("-format","","stk or py")
+   cmd:option("-model","","lstm or cnn")
+   cmd:text()
+
+   -- Parse the option
+   local opt = cmd:parse(arg or {})
+
+   if opt.debug > 0 then
+      dbg = require("debugger")
+   end
 
    if opt.format == "stk" and opt.model == "cnn" then
       print("Run stroke format and cnn model...")
@@ -57,37 +86,6 @@ function main.main()
    else
       config.main.type = "torch.DoubleTensor"
    end
-
-   if opt.debug > 0 then
-      dbg = require("debugger")
-   end
-
-   
-
-   main.clock = {}
-   main.clock.log = 0
-
-   main.new()
-   main.run()
- 
-end
-
-
-
--- Parse arguments
-function main.argparse()
-   local cmd = torch.CmdLine()
-
-   -- Options
-   cmd:option("-resume",0,"Resumption point in epoch. 0 means not resumption.")
-   cmd:option("-debug",0,"debug. 0 means not debug.")
-   cmd:option("-device",0,"device. 0 means cpu.")
-   cmd:option("-format","","stk or py")
-   cmd:option("-model","","lstm or cnn")
-   cmd:text()
-
-   -- Parse the option
-   local opt = cmd:parse(arg or {})
 
    -- Resumption operation
    if opt.resume > 0 then
