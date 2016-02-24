@@ -10,7 +10,7 @@ require 'rnn'
 -- The namespace
 config = {}
 
-local alphabet = "hspnz"
+local alphabet = "abcdefghijklmnopqrstuvwxyz0123456789-,;.!?:'\"/\\|_@#$%^&*~`+-=<>()[]{}"
 
 seq_length = 2
 lstmHiddenSize = 3
