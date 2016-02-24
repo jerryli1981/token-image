@@ -10,10 +10,11 @@ require 'rnn'
 -- The namespace
 config = {}
 
-local alphabet = "hspnz"
+--local alphabet = "hspnz"
+local alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
 
-seq_length = 2
-lstmHiddenSize = 3
+seq_length = 5000
+lstmHiddenSize = 30
 nClass = 5
 
 
