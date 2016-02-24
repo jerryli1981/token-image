@@ -30,11 +30,17 @@ function main.main()
 
    opt = main.argparse()
 
-   if opt.format == "stk" then
-      print("Run stroke format...")
+   if opt.format == "stk" and opt.model == "cnn" then
+      print("Run stroke format and cnn model...")
+      require("config_stroke_cnn")
+   elseif opt.format == "stk" and opt.model == "lstm" then
+      print("Run stroke format and lstm model...")
       require("config_stroke_lstm")
-   elseif opt.format == "py" then
-      print("Run pinyin format...")
+   elseif opt.format == "py" and opt.model == "lstm" then
+      print("Run pinyin format and lstm model...")
+      require("config_pinyin_lstm")
+   elseif opt.format == "py" and opt.model == "cnn" then
+      print("Run pinyin format and cnn model...")
       require("config_pinyin_cnn")
    else 
       error("Wrong format")
@@ -76,6 +82,7 @@ function main.argparse()
    cmd:option("-debug",0,"debug. 0 means not debug.")
    cmd:option("-device",0,"device. 0 means cpu.")
    cmd:option("-format","","stk or py")
+   cmd:option("-model","","lstm or cnn")
    cmd:text()
 
    -- Parse the option

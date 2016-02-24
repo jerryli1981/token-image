@@ -15,14 +15,14 @@ seq_length = 2000
 
 -- Training data
 config.train_data = {}
-config.train_data.file = paths.concat(paths.cwd(),"../data/train.t7b")
+config.train_data.file = paths.concat(paths.cwd(),"../data/train_stk.t7b")
 config.train_data.alphabet = alphabet
 config.train_data.length = seq_length
 config.train_data.batch_size = 128
 
 -- Test data
 config.val_data = {}
-config.val_data.file =  paths.concat(paths.cwd(),"../data/test.t7b")
+config.val_data.file =  paths.concat(paths.cwd(),"../data/test_stk.t7b")
 config.val_data.alphabet = alphabet
 config.val_data.length = seq_length
 config.val_data.batch_size = 128
@@ -51,7 +51,7 @@ config.model[13] = {module = "nn.TemporalConvolution", inputFrameSize = 256, out
 config.model[14] = {module = "nn.Threshold"}
 config.model[15] = {module = "nn.TemporalMaxPooling", kW = 7, dW = 7}
 -- 34 x 256
-config.model[16] = {module = "nn.Reshape", size = 256 * 7}
+config.model[16] = {module = "nn.Reshape", dimension1 = 256 * 7, dimension2 = nil, dimension3 = nil}
 -- 8704
 config.model[17] = {module = "nn.Linear", inputSize = 256 * 7, outputSize = 1024}
 config.model[18] = {module = "nn.Threshold"}
