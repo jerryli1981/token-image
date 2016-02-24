@@ -12,8 +12,8 @@ config = {}
 
 local alphabet = "abcdefghijklmnopqrstuvwxyz0123456789-,;.!?:'\"/\\|_@#$%^&*~`+-=<>()[]{}"
 
-seq_length = 2
-lstmHiddenSize = 3
+seq_length = 100
+lstmHiddenSize = 5
 nClass = 5
 
 
@@ -51,12 +51,14 @@ config.model[8] = {module = "nn.LogSoftMax"}
 -- The loss
 config.loss = nn.ClassNLLCriterion
 
+
 -- The trainer
 config.train = {}
 local baseRate = 1e-2 * math.sqrt(config.train_data.batch_size) / math.sqrt(128)
 config.train.rates = {[1] = baseRate/1,[15001] = baseRate/2,[30001] = baseRate/4,[45001] = baseRate/8,[60001] = baseRate/16,[75001] = baseRate/32,[90001]= baseRate/64,[105001] = baseRate/128,[120001] = baseRate/256,[135001] = baseRate/512,[150001] = baseRate/1024}
 config.train.momentum = 0.9
 config.train.decay = 1e-5
+config.train.optim = optim.adagrad
 
 -- The tester
 config.test = {}
@@ -66,7 +68,7 @@ config.test.confusion = true
 -- Main program
 config.main = {}
 config.main.eras = 1
-config.main.epoches = 2000
+config.main.epoches = 5000
 config.main.randomize = 5e-2
 config.main.dropout = true
 config.main.save = paths.cwd() .. "/models"

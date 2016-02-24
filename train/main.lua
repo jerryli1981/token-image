@@ -5,6 +5,7 @@ By Xiang Zhang @ New York University
 
 -- Necessary functionalities
 require("nn")
+require('optim')
 
 -- Local requires
 require("data")
