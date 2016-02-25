@@ -55,7 +55,26 @@ def seg(content):
 
     return content, len(li)
 
+unicode_ranges = (
+        ('2E80', '2EFF'),     # CJK 部首扩展:[2E80-2EFF]
+        ('2F00', '2FDF'),     # CJK 康熙部首:[2F00-2FDF]
+        ('31C0', '31EF'),     # CJK 笔画:[31C0-31EF]
+        ('3400', '4DBF'),     # CJK 扩展 A:[3400-4DBF]
+        ('4E00', '9FFF'),     # CJK 基本:[4E00-9FFF]
+        ('F900', 'FAFF'),     # CJK 兼容:[F900-FAFF]
+        ('20000', '2A6DF'),   # CJK 扩展 B:[20000-2A6DF]
+        ('2A700', '2B73F'),   # CJK 扩展 C:[2A700-2B73F]
+        ('2B740', '2B81D'),   # CJK 扩展 D:[2B740-2B81D]
+        ('2F800', '2FA1F'),   # CJK 兼容扩展:[2F800-2FA1F]
+    )
 
+def unicode2int(word):
+    c=repr(word)
+    if '\u' not in c:
+        return 0
+    else:
+        d= c.translate(None,r"\u'")
+        return int(d,16)
 
 if __name__ == "__main__":
 
@@ -70,6 +89,14 @@ if __name__ == "__main__":
 
     num_train = 0
     num_test = 0
+
+    vocab = set()
+
+    uniset = set()
+
+    for unicode_range in unicode_ranges:
+        for n in xrange(int(unicode_range[0], 16), int(unicode_range[1], 16) + 1):
+            uniset.add(n)
 
     import argparse
 
@@ -89,16 +116,17 @@ if __name__ == "__main__":
     else:
         raise("Wrong format")
 
-    with open("./data/train_"+args.format+".csv", 'w') as tr, open("./data/test_"+args.format+".csv", 'w') as te:
+    with open("./data/train_"+args.format+".csv", 'w') as tr, open("./data/test_"+args.format+".csv", 'w') as te, \
+        open("./data/dict.txt", 'w')as wordDict:
 
         for t, name in enumerate(os.listdir(Dir)): 
             if name.startswith('.'):
                 continue
             time.sleep(0.01)
             pbar.update(t + 1)
+
             From = Dir + '/' + name
             with codecs.open(From, encoding='gbk', errors='ignore') as f:
-
                 soup = bs(f.read(),"html.parser")
                 for i, j in zip(soup.select('url'), soup.select('content')): 
 
@@ -119,6 +147,13 @@ if __name__ == "__main__":
 
                                 content = content.decode('utf-8')
                                 toks = content.split(" ")
+
+                                for tok in toks:
+                                    for word in tok:
+                                        idx = unicode2int(word)
+                                        if word not in vocab and idx in uniset:
+                                            vocab.add(word)
+                                            wordDict.write(word.encode("utf-8") + '\n')  
 
                                 pys = transfer(toks, style=style, errors=error)
 
@@ -147,6 +182,13 @@ if __name__ == "__main__":
                                 content = content.decode('utf-8')
                                 toks = content.split(" ")
 
+                                for tok in toks:
+                                    for word in tok:
+                                        idx = unicode2int(word)
+                                        if word not in vocab and idx in uniset:
+                                            vocab.add(word)
+                                            wordDict.write(word.encode("utf-8") + '\n')  
+                                            
                                 pys = transfer(toks, style=style, errors=error)
                                 pys = ' '.join(list(itertools.chain(*pys))).encode('utf-8')
                                 exp = "\"2\"" + str(',') + "\""+pys+"\""
@@ -173,6 +215,14 @@ if __name__ == "__main__":
                                 content = content.decode('utf-8')
 
                                 toks = content.split(" ")
+
+                                for tok in toks:
+                                    for word in tok:
+                                        idx = unicode2int(word)
+                                        if word not in vocab and idx in uniset:
+                                            vocab.add(word)
+                                            wordDict.write(word.encode("utf-8") + '\n') 
+
                                 pys = transfer(toks, style=style, errors=error)
                                 pys = ' '.join(list(itertools.chain(*pys))).encode('utf-8')
                                 exp = "\"3\"" + str(',') + "\""+pys+"\""
@@ -187,8 +237,6 @@ if __name__ == "__main__":
 
                     elif "http://finance." in url_mention and url_mention not in finance_url:
                         finance_url.add(url_mention)
-
-                        
                         content, seqlen = seg(content)
 
                         if seqlen > 30:
@@ -199,6 +247,14 @@ if __name__ == "__main__":
                                 content = content.decode('utf-8')
 
                                 toks = content.split(" ")
+
+                                for tok in toks:
+                                    for word in tok:
+                                        idx = unicode2int(word)
+                                        if word not in vocab and idx in uniset:
+                                            vocab.add(word)
+                                            wordDict.write(word.encode("utf-8") + '\n') 
+
                                 pys = transfer(toks, style=style, errors=error)
                                 pys = ' '.join(list(itertools.chain(*pys))).encode('utf-8')
                                 exp = "\"4\"" + str(',') + "\""+pys+"\""
@@ -222,6 +278,14 @@ if __name__ == "__main__":
                                 content = content.decode('utf-8')
 
                                 toks = content.split(" ")
+
+                                for tok in toks:
+                                    for word in tok:
+                                        idx = unicode2int(word)
+                                        if word not in vocab and idx in uniset:
+                                            vocab.add(word)
+                                            wordDict.write(word.encode("utf-8") + '\n') 
+
                                 pys = transfer(toks, style=style, errors=error)
                                 pys = ' '.join(list(itertools.chain(*pys))).encode('utf-8')
                                 exp = "\"5\"" + str(',') + "\""+pys+"\""
@@ -232,10 +296,8 @@ if __name__ == "__main__":
                                 else:
                                     te.write(exp+"\n")
                                     num_test += 1
-
-                
-
-                                
+            
+                            
     pbar.finish()
 
     print '\n---------------'
@@ -244,6 +306,8 @@ if __name__ == "__main__":
     print 'Ent_cnt',"\t",ent_cnt
     print 'Auto_cnt',"\t",auto_cnt
     print 'Tech_cnt',"\t",it_cnt
+
+    print 'Word Size', "\t", len(vocab)
 
     print 'Train_cnt',"\t",num_train
     print 'Test_cnt',"\t",num_test
