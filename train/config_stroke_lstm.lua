@@ -10,13 +10,15 @@ require 'rnn'
 -- The namespace
 config = {}
 
---local alphabet = "hspnz"
-local alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
+local alphabet = "hspnz"
+--local alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
 
 seq_length = 100
 lstmHiddenSize = 50
 nClass = 5
 
+config.memdim = lstmHiddenSize
+config.dictsize = #alphabet
 
 -- Training data
 config.train_data = {}
@@ -58,7 +60,8 @@ local baseRate = 1e-2 * math.sqrt(config.train_data.batch_size) / math.sqrt(128)
 config.train.rates = {[1] = baseRate/1,[15001] = baseRate/2,[30001] = baseRate/4,[45001] = baseRate/8,[60001] = baseRate/16,[75001] = baseRate/32,[90001]= baseRate/64,[105001] = baseRate/128,[120001] = baseRate/256,[135001] = baseRate/512,[150001] = baseRate/1024}
 config.train.momentum = 0.9
 config.train.decay = 1e-5
-config.train.optim = optim.adagrad --rmsprop
+config.train.optim = optim.adagrad--rmsprop 
+config.optim_name = "adagrad"
 
 -- The tester
 config.test = {}

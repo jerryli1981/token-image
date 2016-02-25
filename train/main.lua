@@ -90,14 +90,16 @@ function main.argparse()
    -- Resumption operation
    if opt.resume > 0 then
       -- Find the main resumption file
-      local files = main.findFiles(paths.concat(config.main.save,"main_"..tostring(opt.resume).."_*.t7b"))
+      local files = main.findFiles(paths.concat(config.main.save,"main_"..tostring(opt.resume).."_"..
+         config.train_data.length .. "_" .. config.memdim .."_"..config.dictsize.."_"..config.optim_name.."_*.t7b"))
       if #files ~= 1 then
     error("Found "..tostring(#files).." main resumption point.")
       end
       config.main.resume = files[1]
       print("Using main resumption point "..config.main.resume)
       -- Find the model resumption file
-      local files = main.findFiles(paths.concat(config.main.save,"sequential_"..tostring(opt.resume).."_*.t7b"))
+      local files = main.findFiles(paths.concat(config.main.save,"sequential_"..tostring(opt.resume).."_"..
+         config.train_data.length .. "_" .. config.memdim .."_"..config.dictsize.."_"..config.optim_name.."_*.t7b"))
       if #files ~= 1 then
     error("Found "..tostring(#files).." model resumption point.")
       end
@@ -212,9 +214,11 @@ function main.save()
 
    -- Make the save
    local time = os.time()
-   torch.save(paths.concat(config.main.save,"main_"..(main.train.epoch-1).."_"..time..".t7b"),
+   torch.save(paths.concat(config.main.save,"main_"..(main.train.epoch-1).."_".. 
+      config.train_data.length .. "_" .. config.memdim .."_"..config.dictsize.."_"..config.optim_name.."_"..time..".t7b"),
          {config = config, record = main.record, momentum = main.train.old_grads:double()})
-   torch.save(paths.concat(config.main.save,"sequential_"..(main.train.epoch-1).."_"..time..".t7b"),
+   torch.save(paths.concat(config.main.save,"sequential_"..(main.train.epoch-1).."_"..
+      config.train_data.length .. "_" .. config.memdim .."_"..config.dictsize.."_"..config.optim_name.."_"..time..".t7b"),
          main.model:clearSequential(main.model:makeCleanSequential(main.model.sequential)))
 
    main.eps_error = main.eps_error or gnuplot.epsfigure(paths.concat(config.main.save,"figure_error.eps"))
