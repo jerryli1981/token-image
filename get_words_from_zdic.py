@@ -126,7 +126,7 @@ def main():
                 word = word.strip().decode('utf-8')
                 n = unicode2int(word)
                 word, wb = get_word(n, url_base, headers, cookies)
-                print word+"\t"+wb
+                #print word+"\t"+wb
                 f.write(word+"\t"+wb+"\n")
 
     pbar.finish()
