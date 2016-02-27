@@ -254,7 +254,7 @@ def single_wubi(han, errors='default'):
     num = ord(han)
 
     if num not in WUBI_DICT:
-        return handle_nowubi(han, errors=errors)
+        return handle_nopinyin(han, errors=errors)
 
     wb = WUBI_DICT[num]
 
@@ -329,7 +329,7 @@ def _stroke(words, errors):
             py = handle_nopinyin(word, errors=errors)
             pys.append(py) if py else None
         else:
-            pys.extend(_stroke(word, style, heteronym, errors))
+            pys.extend(_stroke(word, style, errors))
     return pys
 
 def _wubi(words, style, errors):
@@ -344,7 +344,7 @@ def _wubi(words, style, errors):
             py = handle_nopinyin(word, errors=errors)
             pys.append(py) if py else None
         else:
-            pys.extend(_wubi(word, style, heteronym, errors))
+            pys.extend(_wubi(word, style, errors))
     return pys
 
 def pinyin(hans, style=TONE, heteronym=False, errors='default'):
