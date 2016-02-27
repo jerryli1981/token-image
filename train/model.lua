@@ -150,6 +150,8 @@ function Model:createModule(m)
       return Model:createSequencer(m)
    elseif m.module == "nn.Mean" then
       return Model:createMean(m)
+   elseif m.module == "nn.SpatialConvolution" then
+      return Model:createSpatialConvolution(m)
    else
       error("Unrecognized module for creation: "..tostring(m.module))
    end
@@ -159,6 +161,8 @@ end
 function Model:makeCleanModule(m)
    if torch.typename(m) == "nn.TemporalConvolution" then
 	 return Model:toTemporalConvolution(m)
+   elseif torch.typename(m) == "nn.SpatialConvolution" then
+      return Model:toSpatialConvolution(m)
    elseif torch.typename(m) == "nn.Threshold" then
       return Model:newThreshold()
    elseif torch.typename(m) == "nn.TemporalMaxPooling" then
@@ -245,6 +249,10 @@ function Model:createTemporalConvolution(m)
    return nn.TemporalConvolution(m.inputFrameSize, m.outputFrameSize, m.kW, m.dW)
 end
 
+function Model:createSpatialConvolution(m)
+   return nn.SpatialConvolution(m.nInputPlane, m.nOutputPlane, m.kW, m.kH)
+end
+
 -- Create a new spatial max pooling model
 function Model:createTemporalMaxPooling(m)
    return nn.TemporalMaxPooling(m.kW, m.dW, m.dH)
@@ -300,6 +308,13 @@ end
 -- Convert a convolution module to standard
 function Model:toTemporalConvolution(m)
    local new = nn.TemporalConvolution(m.inputFrameSize, m.outputFrameSize, m.kW, m.dW)
+   new.weight:copy(m.weight)
+   new.bias:copy(m.bias)
+   return new
+end
+
+function Model:toSpatialConvolution(m)
+   local new = nn.SpatialConvolution(m.nInputPlane, m.nOutputPlane, m.kW, m.kH)
    new.weight:copy(m.weight)
    new.bias:copy(m.bias)
    return new

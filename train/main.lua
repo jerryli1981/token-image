@@ -8,7 +8,7 @@ require("nn")
 require('optim')
 
 -- Local requires
-require("data")
+
 require("model")
 require("train")
 require("test")
@@ -63,15 +63,23 @@ function main.argparse()
    if opt.format == "stk" and opt.model == "cnn" then
       print("Run stroke format and cnn model...")
       require("config_stroke_cnn")
+      require("data")
    elseif opt.format == "stk" and opt.model == "lstm" then
       print("Run stroke format and lstm model...")
       require("config_stroke_lstm")
+      require("data")
    elseif opt.format == "py" and opt.model == "lstm" then
       print("Run pinyin format and lstm model...")
       require("config_pinyin_lstm")
+      require("data")
    elseif opt.format == "py" and opt.model == "cnn" then
       print("Run pinyin format and cnn model...")
       require("config_pinyin_cnn")
+      require("data")
+   elseif opt.format == "wb" and opt.model == "cnn" then
+      print("Run wubi format and cnn model...")
+      require("config_wb_cnn")
+      require("data_wb")
    else 
       error("Wrong format")
    end
