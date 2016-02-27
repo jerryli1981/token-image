@@ -12,6 +12,9 @@ local alphabet = "qwertyuiopasdfghjklmxcvbn"
 
 seq_length = 100
 
+config.memdim = 0
+config.dictsize = #alphabet
+
 -- Training data
 config.train_data = {}
 config.train_data.file = paths.concat(paths.cwd(), "../data/train_wb.t7b")
