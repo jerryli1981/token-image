@@ -108,7 +108,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.format == "stk":
-        transfer = lazy_stroke
+        transfer = stroke
         error="ignore"
         style = None
     elif args.format == "py":

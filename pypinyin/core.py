@@ -254,7 +254,7 @@ def single_wubi(han, errors='default'):
     num = ord(han)
 
     if num not in WUBI_DICT:
-        return handle_nopinyin(han, errors=errors)
+        return handle_nowubi(han, errors=errors)
 
     wb = WUBI_DICT[num]
 
@@ -281,6 +281,25 @@ def phrases_pinyin(phrases, style, heteronym, errors='default'):
                 py.append(single)
     return py
 
+def phrases_stroke(phrases, style, errors='default'):
+    py = []
+    for i in phrases:
+        single = single_stroke(i, errors=errors)
+        if single:
+            py.append(single)
+    return py
+
+
+def phrases_wubi(phrases, style, errors='default'):
+    py = []
+    for i in phrases:
+        single = single_wubi(i, errors=errors)
+        if single:
+            py.append(single)
+    return py
+
+
+
 
 def _pinyin(words, style, heteronym, errors):
     pys = []
@@ -301,23 +320,31 @@ def _pinyin(words, style, heteronym, errors):
 def _stroke(words, errors):
     pys = []
 
-    for word in words:
+    if RE_HANS.match(words):
+        pys = phrases_stroke(words, style=style, errors=errors)
+        return pys
+
+    for word in simple_seg(words):
         if not (RE_HANS.match(word)):
             py = handle_nopinyin(word, errors=errors)
             pys.append(py) if py else None
         else:
-            pys.extend(single_stroke(word, errors))
+            pys.extend(_stroke(word, style, heteronym, errors))
     return pys
 
-def _wubi(words, errors):
+def _wubi(words, style, errors):
     pys = []
 
-    for word in words:
+    if RE_HANS.match(words):
+        pys = phrases_wubi(words, style=style, errors=errors)
+        return pys
+
+    for word in simple_seg(words):
         if not (RE_HANS.match(word)):
             py = handle_nopinyin(word, errors=errors)
             pys.append(py) if py else None
         else:
-            pys.extend(single_wubi(word, errors))
+            pys.extend(_wubi(word, style, heteronym, errors))
     return pys
 
 def pinyin(hans, style=TONE, heteronym=False, errors='default'):
@@ -371,64 +398,6 @@ def pinyin(hans, style=TONE, heteronym=False, errors='default'):
         pys.extend(_pinyin(words, style, heteronym, errors))
     return pys
 
-
-def slug(hans, style=NORMAL, heteronym=False, separator='-', errors='default'):
-    """生成 slug 字符串.
-
-    :param hans: 汉字
-    :type hans: unicode or list
-    :param style: 指定拼音风格
-    :param heteronym: 是否启用多音字
-    :param separstor: 两个拼音间的分隔符/连接符
-    :param errors: 指定如何处理没有拼音的字符，详情请参考
-                   :py:func:`~pypinyin.pinyin`
-    :return: slug 字符串.
-
-    ::
-
-      >>> import pypinyin
-      >>> pypinyin.slug(u'中国人')
-      u'zhong-guo-ren'
-      >>> pypinyin.slug(u'中国人', separator=u' ')
-      u'zhong guo ren'
-      >>> pypinyin.slug(u'中国人', style=pypinyin.INITIALS)
-      u'zh-g-r'
-    """
-    return separator.join(chain(*pinyin(hans, style=style, heteronym=heteronym,
-                                        errors=errors)
-                                ))
-
-
-def lazy_pinyin(hans, style=NORMAL, errors='default'):
-    """不包含多音字的拼音列表.
-
-    与 :py:func:`~pypinyin.pinyin` 的区别是返回的拼音是个字符串，
-    并且每个字只包含一个读音.
-
-    :param hans: 汉字
-    :type hans: unicode or list
-    :param style: 指定拼音风格
-    :param errors: 指定如何处理没有拼音的字符，详情请参考
-                   :py:func:`~pypinyin.pinyin`
-    :return: 拼音列表(e.g. ``['zhong', 'guo', 'ren']``)
-    :rtype: list
-
-    Usage::
-
-      >>> from pypinyin import lazy_pinyin
-      >>> import pypinyin
-      >>> lazy_pinyin(u'中心')
-      [u'zhong', u'xin']
-      >>> lazy_pinyin(u'中心', style=pypinyin.TONE)
-      [u'zh\u014dng', u'x\u012bn']
-      >>> lazy_pinyin(u'中心', style=pypinyin.INITIALS)
-      [u'zh', u'x']
-      >>> lazy_pinyin(u'中心', style=pypinyin.TONE2)
-      [u'zho1ng', u'xi1n']
-    """
-    return list(chain(*pinyin(hans, style=style, heteronym=False,
-                              errors=errors)))
-
 def stroke(hans, style=TONE, errors='default'):
 
     strokes = []
@@ -441,6 +410,6 @@ def wubi(hans, style=TONE, errors='default'):
 
     wbs = []
     for words in hans:
-        wbs.extend(_wubi(words, errors))
+        wbs.extend(_wubi(words, style, errors))
 
     return list(chain(*wbs))

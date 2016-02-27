@@ -11,7 +11,7 @@ from .constants import (
     STYLE_FINALS, STYLE_FINALS_TONE, STYLE_FINALS_TONE2
 )
 from .core import (     # noqa
-    pinyin, lazy_pinyin, stroke, wubi, slug, load_single_dict, load_phrases_dict
+    pinyin, stroke, wubi, load_single_dict, load_phrases_dict
 )
 
 NORMAL = STYLE_NORMAL
