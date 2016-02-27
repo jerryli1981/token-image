@@ -284,22 +284,23 @@ def phrases_pinyin(phrases, style, heteronym, errors='default'):
 def phrases_stroke(phrases, style, errors='default'):
     py = []
     for i in phrases:
+        stk = []
         single = single_stroke(i, errors=errors)
+        stk.append(single)
         if single:
-            py.append(single)
+            py.append(stk)
     return py
 
 
 def phrases_wubi(phrases, style, errors='default'):
     py = []
     for i in phrases:
+        wb = []
         single = single_wubi(i, errors=errors)
+        wb.append(single)
         if single:
-            py.append(single)
+            py.append(wb)
     return py
-
-
-
 
 def _pinyin(words, style, heteronym, errors):
     pys = []
@@ -404,7 +405,7 @@ def stroke(hans, style=TONE, errors='default'):
     for words in hans:
         strokes.extend(_stroke(words, errors))
 
-    return list(chain(*strokes))
+    return strokes
 
 def wubi(hans, style=TONE, errors='default'):
 
@@ -412,4 +413,4 @@ def wubi(hans, style=TONE, errors='default'):
     for words in hans:
         wbs.extend(_wubi(words, style, errors))
 
-    return list(chain(*wbs))
+    return wbs
