@@ -11,7 +11,7 @@ import warnings
 
 from .compat import text_type, callable_check
 from .constants import (
-    PHRASES_DICT, PINYIN_DICT, STROKE_DICT, _INITIALS, PHONETIC_SYMBOL, RE_PHONETIC_SYMBOL,
+    PHRASES_DICT, PINYIN_DICT, STROKE_DICT, WUBI_DICT, _INITIALS, PHONETIC_SYMBOL, RE_PHONETIC_SYMBOL,
     RE_TONE2, RE_HANS, U_FINALS_EXCEPTIONS_MAP,
     NORMAL, TONE, TONE2, INITIALS, FIRST_LETTER,
     FINALS, FINALS_TONE, FINALS_TONE2
@@ -249,6 +249,17 @@ def single_stroke(han, errors='default'):
 
     return stroke
 
+def single_wubi(han, errors='default'):
+
+    num = ord(han)
+
+    if num not in WUBI_DICT:
+        return handle_nopinyin(han, errors=errors)
+
+    wb = WUBI_DICT[num]
+
+    return wb
+
 def phrases_pinyin(phrases, style, heteronym, errors='default'):
     """词语拼音转换.
 
@@ -298,6 +309,16 @@ def _stroke(words, errors):
             pys.extend(single_stroke(word, errors))
     return pys
 
+def _wubi(words, errors):
+    pys = []
+
+    for word in words:
+        if not (RE_HANS.match(word)):
+            py = handle_nopinyin(word, errors=errors)
+            pys.append(py) if py else None
+        else:
+            pys.extend(single_wubi(word, errors))
+    return pys
 
 def pinyin(hans, style=TONE, heteronym=False, errors='default'):
     """将汉字转换为拼音.
@@ -408,10 +429,18 @@ def lazy_pinyin(hans, style=NORMAL, errors='default'):
     return list(chain(*pinyin(hans, style=style, heteronym=False,
                               errors=errors)))
 
-def lazy_stroke(hans, style=TONE, errors='default'):
+def stroke(hans, style=TONE, errors='default'):
 
     strokes = []
     for words in hans:
         strokes.extend(_stroke(words, errors))
 
     return list(chain(*strokes))
+
+def wubi(hans, style=TONE, errors='default'):
+
+    wbs = []
+    for words in hans:
+        wbs.extend(_wubi(words, errors))
+
+    return list(chain(*wbs))

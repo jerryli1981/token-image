@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 import os
 import re
 
-from . import phonetic_symbol, pinyin_dict, stroke_dict
+from . import phonetic_symbol, pinyin_dict, stroke_dict, wb_dict
 from .compat import SUPPORT_UCS4
 
 # 词语拼音库
@@ -19,6 +19,7 @@ else:
 # 单字拼音库
 PINYIN_DICT = pinyin_dict.pinyin_dict.copy()
 STROKE_DICT = stroke_dict.stroke_dict.copy()
+WUBI_DICT = wb_dict.wb_dict.copy()
 # 声母表
 _INITIALS = 'b,p,m,f,d,t,n,l,g,k,h,j,q,x,zh,ch,sh,r,z,c,s'.split(',')
 # 带声调字符与使用数字标识的字符的对应关系，类似： {u'ā': 'a1'}

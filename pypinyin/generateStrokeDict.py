@@ -3,7 +3,7 @@
 
 """从stroke.dict.yaml 按 unicode 编码获取汉字及 stroke"""
 
-with open("./pypinyin/stroke_dict.py", "w") as s:
+with open("stroke_dict.py", "w") as s:
 	s.write("stroke_dict = {\n")
 
 	with open("stroke.dict.yaml") as f:

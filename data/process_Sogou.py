@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import os
+import sys,os
 import time
 import jieba
 from bs4 import BeautifulSoup as bs
 
-from pypinyin import lazy_stroke, pinyin
+sys.path.insert(0, "../")
+
+from pypinyin import stroke, pinyin, wubi
 import pypinyin
 
 from progressbar import ProgressBar
@@ -17,7 +19,7 @@ import codecs
 import itertools
 
 
-Dir = "./data/SogouCAS"
+Dir = "./SogouCAS"
 
 sport_url = set()
 finance_url = set()
@@ -113,11 +115,15 @@ if __name__ == "__main__":
         transfer = pinyin
         style = pypinyin.TONE2
         error="ignore"
+    elif args.format == "wb":
+        transfer = wubi
+        style = None
+        error="ignore"
     else:
         raise("Wrong format")
 
-    with open("./data/train_"+args.format+".csv", 'w') as tr, open("./data/test_"+args.format+".csv", 'w') as te, \
-        open("./data/dict.txt", 'w')as wordDict:
+    with open("./train_"+args.format+".csv", 'w') as tr, open("./test_"+args.format+".csv", 'w') as te, \
+        open("./dict.txt", 'w')as wordDict:
 
         for t, name in enumerate(os.listdir(Dir)): 
             if name.startswith('.'):

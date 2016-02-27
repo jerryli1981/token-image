@@ -110,7 +110,7 @@ def main():
     cookies = {}
 
     count = 0
-    with open("./data/dict.txt", "rb") as dict:
+    with open("../data/dict.txt", "rb") as dict:
         for word in dict:
             count +=1
 
@@ -118,7 +118,7 @@ def main():
     pbar = ProgressBar(maxval=count).start()
 
 
-    with io.open("./data/dict_pw.txt", 'w', buffering=1, encoding='utf8') as f:
+    with io.open("dict_wb.txt", 'w', buffering=1, encoding='utf8') as f:
         with open("./data/dict.txt", "rb") as dict:
             for i, word in enumerate(dict):
                 time.sleep(0.01)
