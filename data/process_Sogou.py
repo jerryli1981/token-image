@@ -20,7 +20,7 @@ import itertools
 
 import random
 
-"""
+
 unicode_ranges = (
         ('2E80', '2EFF'),     # CJK 部首扩展:[2E80-2EFF]
         ('2F00', '2FDF'),     # CJK 康熙部首:[2F00-2FDF]
@@ -38,7 +38,7 @@ uniset = set()
 for unicode_range in unicode_ranges:
     for n in xrange(int(unicode_range[0], 16), int(unicode_range[1], 16) + 1):
         uniset.add(n)
-"""
+
 
 
 Dic = {'Ａ':'A','Ｂ':'B','Ｃ':'C','Ｄ':'D','Ｅ':'E','Ｆ':'F','Ｇ':'G','Ｈ':'H','Ｉ':'I','Ｊ':'J','Ｋ':'K','Ｌ':'L','Ｍ':'M','Ｎ':'N','Ｏ':'O','Ｐ':'P','Ｑ':'Q',\
