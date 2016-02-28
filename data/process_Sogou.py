@@ -89,7 +89,7 @@ def transEscape(content):
 def transformation(content, label, wordDict):
 
     content, seqlen = seg(content)
-    if seqlen < 10:
+    if seqlen < 5:
         return None
 
     content = content.decode('utf-8')
