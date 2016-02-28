@@ -226,7 +226,7 @@ if __name__ == "__main__":
                     
         pbar.finish()
 
-        num_samples = 60000
+        num_samples = 50000
         sports_samples = random.sample(set(sport_list), num_samples)
         ent_samples = random.sample(set(ent_list), num_samples)
         auto_samples = random.sample(set(auto_list), num_samples)
@@ -236,7 +236,7 @@ if __name__ == "__main__":
         all_samples = sports_samples + ent_samples + auto_samples + fin_samples + it_samples
 
         random.shuffle(all_samples)
-        training, test = all_samples[:250000], all_samples[250000:]
+        training, test = all_samples[:200000], all_samples[200000:]
 
         for data in training:
             tr.write(data+"\n")
