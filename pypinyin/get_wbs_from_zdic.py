@@ -14,7 +14,7 @@ import requests
 
 from progressbar import ProgressBar
 
-from pypinyin.pinyin_dict import pinyin_dict
+import pinyin_dict
 
 class Message(object):
     def __init__(self, file_name):
@@ -119,7 +119,7 @@ def main():
 
 
     with io.open("dict_wb.txt", 'w', buffering=1, encoding='utf8') as f:
-        with open("./data/dict.txt", "rb") as dict:
+        with open("../data/dict.txt", "rb") as dict:
             for i, word in enumerate(dict):
                 time.sleep(0.01)
                 pbar.update(i + 1)
