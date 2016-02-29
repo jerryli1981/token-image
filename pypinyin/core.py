@@ -318,7 +318,7 @@ def _pinyin(words, style, heteronym, errors):
             pys.extend(_pinyin(word, style, heteronym, errors))
     return pys
 
-def _stroke(words, errors):
+def _stroke(words, style, errors):
     pys = []
 
     if RE_HANS.match(words):
@@ -403,7 +403,7 @@ def stroke(hans, style=TONE, errors='default'):
 
     strokes = []
     for words in hans:
-        strokes.extend(_stroke(words, errors))
+        strokes.extend(_stroke(words, style, errors))
 
     return strokes
 
