@@ -20,6 +20,8 @@ import itertools
 
 import random
 
+import math
+
 
 unicode_ranges = (
         ('2E80', '2EFF'),     # CJK 部首扩展:[2E80-2EFF]
@@ -227,14 +229,19 @@ if __name__ == "__main__":
         pbar.finish()
 
         print '\n---------------'
-        print 'Sport_cnt',"\t",len(set(sport_list))
-        print 'Fin_cnt',"\t",len(set(fin_list))
-        print 'Ent_cnt',"\t",len(set(ent_list))
-        print 'Auto_cnt',"\t",len(set(auto_list))
-        print 'Tech_cnt',"\t",len(set(it_list))
+        num_sports = len(set(sport_list))
+        num_fin = len(set(fin_list))
+        num_ent = len(set(ent_list))
+        num_auto = len(set(auto_list))
+        num_it = len(set(it_list))
+        print 'Sport_cnt',"\t",num_sports
+        print 'Fin_cnt',"\t",num_fin
+        print 'Ent_cnt',"\t",num_ent
+        print 'Auto_cnt',"\t",num_auto
+        print 'Tech_cnt',"\t",num_it
         print 'Word Size', "\t", len(vocab)
 
-        num_samples = 350
+        num_samples = min([num_sports, num_fin, num_ent, num_auto, num_it])
         sports_samples = random.sample(set(sport_list), num_samples)
         ent_samples = random.sample(set(ent_list), num_samples)
         auto_samples = random.sample(set(auto_list), num_samples)
@@ -244,7 +251,10 @@ if __name__ == "__main__":
         all_samples = sports_samples + ent_samples + auto_samples + fin_samples + it_samples
 
         random.shuffle(all_samples)
-        training, test = all_samples[:1000], all_samples[1000:]
+
+        train_size = int(math.floor(num_samples * 0.87 * 5))
+
+        training, test = all_samples[:train_size], all_samples[train_size:]
 
         for data in training:
             tr.write(data+"\n")
@@ -255,4 +265,11 @@ if __name__ == "__main__":
         print 'Train_cnt',"\t",len(training)
         print 'Test_cnt',"\t",len(test)
         print '---------------\n'
+
+        """
+        seqlen < 2
+        auto:59366
+        tech:67645
+
+        """
 
