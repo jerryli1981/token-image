@@ -16,6 +16,8 @@ seq_length = 100
 lstmHiddenSize = 5
 nClass = 5
 
+config.dictsize = #alphabet
+
 
 -- Training data
 config.train_data = {}
@@ -42,7 +44,7 @@ config.model[2] = {module = "nn.SplitTable", dimension = 1, nInputDims = 2}
 -- 2000 x hiddenSize
 config.model[3] = {module = "nn.Sequencer", inputSize=#alphabet, hiddenSize = lstmHiddenSize , seqLength = seq_length}
 config.model[4] = {module = "nn.JoinTable", dimension = 2}
-config.model[5] = {module = "nn.Reshape", dimension1 = 128, dimension2 = seq_length, dimension3 = lstmHiddenSize }
+config.model[5] = {module = "nn.Reshape", dimension1 = config.train_data.batch_size, dimension2 = seq_length, dimension3 = lstmHiddenSize }
 config.model[6] = {module = "nn.Mean", dimension = 2}
 config.model[7] = {module = "nn.Linear",inputSize = lstmHiddenSize, outputSize = nClass}
 config.model[8] = {module = "nn.LogSoftMax"}
@@ -56,9 +58,11 @@ config.loss = nn.ClassNLLCriterion
 config.train = {}
 local baseRate = 1e-2 * math.sqrt(config.train_data.batch_size) / math.sqrt(128)
 config.train.rates = {[1] = baseRate/1,[15001] = baseRate/2,[30001] = baseRate/4,[45001] = baseRate/8,[60001] = baseRate/16,[75001] = baseRate/32,[90001]= baseRate/64,[105001] = baseRate/128,[120001] = baseRate/256,[135001] = baseRate/512,[150001] = baseRate/1024}
-config.train.momentum = 0.9
-config.train.decay = 1e-5
-config.train.optim = optim.rmsprop
+
+
+config.train.optim = optim.adagrad
+config.train.optim_state = {learningRate=config.train.rates[1]}
+config.optim_name = "adagrad"
 
 -- The tester
 config.test = {}

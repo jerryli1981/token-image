@@ -12,7 +12,6 @@ require('optim')
 require("model")
 require("train")
 require("test")
-require("gnuplot")
 
 
 require('lfs')
@@ -54,7 +53,7 @@ function main.argparse()
    cmd:text()
 
    -- Parse the option
-   local opt = cmd:parse(arg or {})
+   opt = cmd:parse(arg or {})
 
    if opt.debug > 0 then
       dbg = require("debugger")
@@ -99,7 +98,8 @@ function main.argparse()
    if opt.resume > 0 then
       -- Find the main resumption file
       local files = main.findFiles(paths.concat(config.main.save,"main_"..tostring(opt.resume).."_"..
-         config.train_data.length .. "_" .. config.memdim .."_"..config.dictsize.."_"..config.optim_name.."_*.t7b"))
+       opt.format .. "_" .. opt.model .. "_" ..
+         config.train_data.length .. "_" ..config.dictsize.."_"..config.optim_name.."_*.t7b"))
       if #files ~= 1 then
     error("Found "..tostring(#files).." main resumption point.")
       end
@@ -107,7 +107,8 @@ function main.argparse()
       print("Using main resumption point "..config.main.resume)
       -- Find the model resumption file
       local files = main.findFiles(paths.concat(config.main.save,"sequential_"..tostring(opt.resume).."_"..
-         config.train_data.length .. "_" .. config.memdim .."_"..config.dictsize.."_"..config.optim_name.."_*.t7b"))
+         opt.format .. "_" .. opt.model .. "_" ..
+         config.train_data.length .. "_" ..config.dictsize.."_"..config.optim_name.."_*.t7b"))
       if #files ~= 1 then
     error("Found "..tostring(#files).." model resumption point.")
       end
@@ -122,8 +123,6 @@ function main.argparse()
          print("Disabled randomization for resumption")
       end
    end
-
-   return opt
 end
 
 -- Train a new experiment
@@ -171,13 +170,21 @@ function main.run()
 	     main.model:disableDropouts()
       end
       print("Training for era "..i)
-      main.train:run(config.main.epoches, main.trainlog)
+      if opt.format == "wb" then
+         main.train:run_wb(config.main.epoches, main.trainlog)
+      else
+         main.train:run(config.main.epoches, main.trainlog)
+      end
 
       if config.main.validate == true then
 	     print("Disabling dropouts")
         main.model:disableDropouts()
 	     print("Testing on develop data for era "..i)
-	     main.test_val:run(main.testlog)
+         if opt.format == "wb" then
+            main.test_val:run_wb(main.testlog)
+         else
+            main.test_val:run(main.testlog)
+         end
       end
 
       print("Recording on ear " .. i)
@@ -189,12 +196,7 @@ function main.run()
    end
 end
 
-function main.show(figure_error, figure_loss)
-   main.figure_error = main.figure_error or gnuplot.figure()
-   main.figure_loss = main.figure_loss or gnuplot.figure()
-
-   local figure_error = figure_error or main.figure_error
-   local figure_loss = figure_loss or main.figure_loss
+function main.show()
 
    local epoch = torch.linspace(1, #main.record, #main.record):mul(config.main.epoches)
    local val_error = torch.zeros(#main.record)
@@ -222,16 +224,12 @@ function main.save()
 
    -- Make the save
    local time = os.time()
-   torch.save(paths.concat(config.main.save,"main_"..(main.train.epoch-1).."_".. 
-      config.train_data.length .. "_" .. config.memdim .."_"..config.dictsize.."_"..config.optim_name.."_"..time..".t7b"),
+   torch.save(paths.concat(config.main.save,"main_"..(main.train.epoch-1).."_".. opt.format .. "_" .. opt.model .. "_" ..
+      config.train_data.length .."_"..config.dictsize.."_"..config.optim_name.."_"..time..".t7b"),
          {config = config, record = main.record, momentum = main.train.old_grads:double()})
-   torch.save(paths.concat(config.main.save,"sequential_"..(main.train.epoch-1).."_"..
-      config.train_data.length .. "_" .. config.memdim .."_"..config.dictsize.."_"..config.optim_name.."_"..time..".t7b"),
+   torch.save(paths.concat(config.main.save,"sequential_"..(main.train.epoch-1).."_".. opt.format .. "_" .. opt.model .. "_" ..
+      config.train_data.length .."_"..config.dictsize.."_"..config.optim_name.."_"..time..".t7b"),
          main.model:clearSequential(main.model:makeCleanSequential(main.model.sequential)))
-
-   main.eps_error = main.eps_error or gnuplot.epsfigure(paths.concat(config.main.save,"figure_error.eps"))
-   main.eps_loss = main.eps_loss or gnuplot.epsfigure(paths.concat(config.main.save,"figure_loss.eps"))
-   main.show(main.eps_error, main.eps_loss)
 
    collectgarbage()
 end

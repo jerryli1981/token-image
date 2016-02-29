@@ -10,6 +10,8 @@ config = {}
 
 local alphabet = "abcdefghijklmnopqrstuvwxyz0123456789-,;.!?:'\"/\\|_@#$%^&*~`+-=<>()[]{}"
 
+config.dictsize = #alphabet
+
 -- Training data
 config.train_data = {}
 config.train_data.file = paths.concat(paths.cwd(), "../data/train_py.t7b")

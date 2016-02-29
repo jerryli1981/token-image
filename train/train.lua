@@ -68,6 +68,21 @@ function Train:run(epoches,logfunc)
    end
 end
 
+function Train:run_wb(epoches,logfunc)
+   -- Recapture the weights
+   if self.recapture then
+      self.params,self.grads = nil,nil
+      collectgarbage()
+      self.params,self.grads = self.model:getParameters()
+      collectgarbage()
+   end
+   -- The loop
+   for i = 1,epoches do
+      self:batchStep_wb()
+      if logfunc then logfunc(self,i) end
+   end
+end
+
 -- Run for one batch step
 function Train:batchStep()
    self.clock = sys.clock()
@@ -255,7 +270,8 @@ function Train:batchStep_wb()
       return self.objective, self.grads
    end
 
-   self.optim_state = {learningRate = self.rate }
+
+   self.optim_state["learningRate"]=self.rate
 
    self.optimization_function(feval, self.params, self.optim_state)
 
