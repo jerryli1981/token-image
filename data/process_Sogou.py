@@ -227,14 +227,14 @@ if __name__ == "__main__":
         pbar.finish()
 
         print '\n---------------'
-        print 'Sport_cnt',"\t",len(sport_list)
-        print 'Fin_cnt',"\t",len(fin_list)
-        print 'Ent_cnt',"\t",len(ent_list)
-        print 'Auto_cnt',"\t",len(auto_list)
-        print 'Tech_cnt',"\t",len(it_list)
+        print 'Sport_cnt',"\t",len(set(sport_list))
+        print 'Fin_cnt',"\t",len(set(fin_list))
+        print 'Ent_cnt',"\t",len(set(ent_list))
+        print 'Auto_cnt',"\t",len(set(auto_list))
+        print 'Tech_cnt',"\t",len(set(it_list))
         print 'Word Size', "\t", len(vocab)
 
-        num_samples = 40000
+        num_samples = 350
         sports_samples = random.sample(set(sport_list), num_samples)
         ent_samples = random.sample(set(ent_list), num_samples)
         auto_samples = random.sample(set(auto_list), num_samples)
@@ -244,27 +244,15 @@ if __name__ == "__main__":
         all_samples = sports_samples + ent_samples + auto_samples + fin_samples + it_samples
 
         random.shuffle(all_samples)
-        training, test = all_samples[:175000], all_samples[175000:]
+        training, test = all_samples[:1000], all_samples[1000:]
 
         for data in training:
             tr.write(data+"\n")
 
         for data in test:
-            te.write(data+"\n")
-
-        print '\n---------------'
-
-        
+            te.write(data+"\n")        
 
         print 'Train_cnt',"\t",len(training)
         print 'Test_cnt',"\t",len(test)
         print '---------------\n'
-
-""" No content limitation
-Sport_cnt   571864
-Fin_cnt     141181
-Ent_cnt     259596
-Auto_cnt    70279
-Tech_cnt    73866
-"""
 
