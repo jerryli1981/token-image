@@ -46,10 +46,7 @@ function Train:__init(data,model,loss,config)
    self.time = {}
 
    -- Store the configurations
-   self.momentum = config.momentum or 0
-   self.decay = config.decay or 0
-   self.normalize = config.normalize
-   self.recapture = config.recapture
+   self.optim_state = config.optim_state
    self.optimization_function = config.optim
 end
 
@@ -66,7 +63,7 @@ function Train:run(epoches,logfunc)
    end
    -- The loop
    for i = 1,epoches do
-      self:batchStep_wb()
+      self:batchStep_new()
       if logfunc then logfunc(self,i) end
    end
 end
@@ -216,8 +213,8 @@ function Train:batchStep_new()
       return self.objective, self.grads
    end
 
-   self.optim_state = {learningRate = self.rate }
 
+   self.optim_state["learningRate"]=self.rate
    self.optimization_function(feval, self.params, self.optim_state)
 
    -- Increment on the epoch
