@@ -31,15 +31,15 @@ config.val_data.batch_size = 128
 -- The model
 config.model = {}
 -- 4 x 5 x 500
-config.model[1] = {module = "nn.SpatialConvolution", nInputPlane = 4, nOutputPlane= 5, kW = 10, kH=5}
-config.model[2] = {module = "nn.Threshold"}
---config.model[3] = {module = "nn.TemporalMaxPooling", kW = 3, dW = 3}
+config.model[1] = {module = "nn.SpatialConvolution", nInputPlane = 4, nOutputPlane= 5, kW = 10, kH=2}
+config.model[2] = {module = "nn.Tanh"}
+config.model[3] = {module = "nn.SpatialMaxPooling", kW = 3, kH = 2}
 
 -- 34 x 256
-config.model[3] = {module = "nn.Reshape", dimension1 = 2455, dimension2 = nil, dimension3 = nil }
+config.model[4] = {module = "nn.Reshape", dimension1 = 1630, dimension2 = nil, dimension3 = nil }
 
-config.model[4] = {module = "nn.Linear", inputSize = 2455, outputSize = 5}
-config.model[5] = {module = "nn.LogSoftMax"}
+config.model[5] = {module = "nn.Linear", inputSize = 1630, outputSize = 5}
+config.model[6] = {module = "nn.LogSoftMax"}
 
 -- The loss
 config.loss = nn.ClassNLLCriterion

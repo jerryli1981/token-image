@@ -152,6 +152,8 @@ function Model:createModule(m)
       return Model:createMean(m)
    elseif m.module == "nn.SpatialConvolution" then
       return Model:createSpatialConvolution(m)
+   elseif m.module == "nn.SpatialMaxPooling" then
+      return Model:createSpatialMaxPooling(m)
    else
       error("Unrecognized module for creation: "..tostring(m.module))
    end
@@ -163,6 +165,8 @@ function Model:makeCleanModule(m)
 	 return Model:toTemporalConvolution(m)
    elseif torch.typename(m) == "nn.SpatialConvolution" then
       return Model:toSpatialConvolution(m)
+   elseif torch.typename(m) == "nn.SpatialMaxPooling" then
+      return Model:toSpatialMaxPooling(m)
    elseif torch.typename(m) == "nn.Threshold" then
       return Model:newThreshold()
    elseif torch.typename(m) == "nn.TemporalMaxPooling" then
@@ -253,6 +257,10 @@ function Model:createSpatialConvolution(m)
    return nn.SpatialConvolution(m.nInputPlane, m.nOutputPlane, m.kW, m.kH)
 end
 
+function Model:createSpatialMaxPooling(m)
+   return nn.SpatialMaxPooling(m.kW, m.kH)
+end
+
 -- Create a new spatial max pooling model
 function Model:createTemporalMaxPooling(m)
    return nn.TemporalMaxPooling(m.kW, m.dW, m.dH)
@@ -280,6 +288,10 @@ end
 -- Convert to a new max pooling
 function Model:toTemporalMaxPooling(m)
    return nn.TemporalMaxPooling(m.kW, m.dW)
+end
+
+function Model:toSpatialMaxPooling(m)
+   return nn.SpatialMaxPooling(m.kW, m.kH)
 end
 
 -- Convert to a new reshape
