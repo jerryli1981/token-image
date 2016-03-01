@@ -66,7 +66,7 @@ config.train.decay=1e-5
 
 --config.train.optim = optim.sgd
 --config.train.optim_state = {momentum = 0.9, weightDecay = 1e-5, learningRate=config.train.rates[1]}
---config.optim_name = "sgd"
+config.optim_name = "sgd"
 
 -- The tester
 config.test = {}
