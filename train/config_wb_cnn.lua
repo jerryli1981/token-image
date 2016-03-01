@@ -30,20 +30,20 @@ config.val_data.batch_size = 128
 
 -- The model
 config.model = {}
--- 4 x 5 x 500
+-- 4 x 5 x 5 x seq_length
 config.model[1] = {module = "nn.Reshape", dimension1 = 4, dimension2 = 50, dimension3 = 50 }
 -- 4 x 50 x 50
-config.model[2] = {module = "nn.SpatialConvolution", nInputPlane = 4, nOutputPlane= 10, kW = 3, kH=3}
+config.model[2] = {module = "nn.SpatialConvolution", nInputPlane = 4, nOutputPlane= 4, kW = 6, kH=6}
 config.model[3] = {module = "nn.Tanh"}
 config.model[4] = {module = "nn.SpatialMaxPooling", kW = 3, kH = 3}
 
-config.model[5] = {module = "nn.SpatialConvolution", nInputPlane = 10, nOutputPlane= 10, kW = 3, kH=3}
+config.model[5] = {module = "nn.SpatialConvolution", nInputPlane = 4, nOutputPlane= 4, kW = 6, kH=6}
 config.model[6] = {module = "nn.Tanh"}
 config.model[7] = {module = "nn.SpatialMaxPooling", kW = 3, kH = 3}
 
-config.model[8] = {module = "nn.Reshape", dimension1 = 160, dimension2 = nil, dimension3 = nil }
+config.model[8] = {module = "nn.Reshape", dimension1 = 36, dimension2 = nil, dimension3 = nil }
 
-config.model[9] = {module = "nn.Linear", inputSize = 160, outputSize = 5}
+config.model[9] = {module = "nn.Linear", inputSize = 36, outputSize = 5}
 config.model[10] = {module = "nn.LogSoftMax"}
 
 -- The loss
@@ -55,13 +55,13 @@ local baseRate = 1e-2 * math.sqrt(config.train_data.batch_size) / math.sqrt(128)
 config.train.rates = {[1] = baseRate/1,[15001] = baseRate/2,[30001] = baseRate/4,[45001] = baseRate/8,[60001] = baseRate/16,[75001] = baseRate/32,[90001]= baseRate/64,[105001] = baseRate/128,[120001] = baseRate/256,[135001] = baseRate/512,[150001] = baseRate/1024}
 
 
---config.train.optim = optim.adagrad
---config.train.optim_state = {learningRate=config.train.rates[1]}
---config.optim_name = "adagrad"
+config.train.optim = optim.adagrad
+config.train.optim_state = {learningRate=config.train.rates[1]}
+config.optim_name = "adagrad"
 
-config.train.optim = optim.sgd
-config.train.optim_state = {momentum = 0.9, weightDecay = 1e-5, learningRate=config.train.rates[1]}
-config.optim_name = "sgd"
+--config.train.optim = optim.sgd
+--config.train.optim_state = {momentum = 0.9, weightDecay = 1e-5, learningRate=config.train.rates[1]}
+--config.optim_name = "sgd"
 
 -- The tester
 config.test = {}

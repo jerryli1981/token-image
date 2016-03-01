@@ -129,8 +129,8 @@ function Data:sequenceTo3DTensor(str, l, input)
       count = count + 1
    end
 
-   if #tmp < 100 then
-      for i=#tmp+1, 100 do
+   if #tmp < self.length then
+      for i=#tmp+1, self.length do
          tmp[i] = torch.Tensor(4,5,5):zero()
       end
    end
