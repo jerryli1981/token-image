@@ -35,7 +35,7 @@ end
 
 function Data:getBatch(inputs, labels, data)
    local data = data or self.data
-   local inputs = inputs or torch.Tensor(self.batch_size, 5, 5*self.length)
+   local inputs = inputs or torch.Tensor(self.batch_size, 1, 5, 5*self.length)
 
    local labels = labels or torch.Tensor(inputs:size(1))
 
@@ -64,14 +64,14 @@ function Data:iterator(static, data)
    if static == nil then static = true end
 
    if static then
-      inputs = torch.Tensor(self.batch_size, 5, 5*self.length)
+      inputs = torch.Tensor(self.batch_size, 1, 5, 5*self.length)
       labels = torch.Tensor(inputs:size(1))
    end
 
    return function()
       if data.index[i] == nil then return end
 
-      local inputs = inputs or torch.Tensor(self.batch_size, 5, 5*self.length)
+      local inputs = inputs or torch.Tensor(self.batch_size, 1, 5, 5*self.length)
       local labels = labels or torch.Tensor(inputs:size(1))
 
       local n = 0
@@ -134,7 +134,7 @@ function Data:sequenceTo2DTensor(str, l, input)
 
    merge = nn.JoinTable(2):forward(tmp)
    for i=1, 5 do
-      input[i] = merge[i]
+      input[1][i] = merge[i]
 
    end
 end
