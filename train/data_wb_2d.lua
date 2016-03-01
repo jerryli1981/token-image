@@ -21,6 +21,7 @@ function Data:__init(config)
    self.batch_size = config.batch_size or 128
    self.file = config.file
 
+
    self.config = config
    self.data = torch.load(self.file)
    self.num_samples = data.n
@@ -34,7 +35,7 @@ end
 
 function Data:getBatch(inputs, labels, data)
    local data = data or self.data
-   local inputs = inputs or torch.Tensor(self.batch_size, 4, 5, 5*self.length)
+   local inputs = inputs or torch.Tensor(self.batch_size, 5, 5*self.length)
 
    local labels = labels or torch.Tensor(inputs:size(1))
 
@@ -50,7 +51,7 @@ function Data:getBatch(inputs, labels, data)
       end
 
       labels[i] = label
-      self:sequenceTo3DTensor(s, self.length, inputs:select(1, i))
+      self:sequenceTo2DTensor(s, self.length, inputs:select(1, i))
    end
    return inputs, labels
 end
@@ -63,14 +64,14 @@ function Data:iterator(static, data)
    if static == nil then static = true end
 
    if static then
-      inputs = torch.Tensor(self.batch_size, 4, 5, 5*self.length)
+      inputs = torch.Tensor(self.batch_size, 5, 5*self.length)
       labels = torch.Tensor(inputs:size(1))
    end
 
    return function()
       if data.index[i] == nil then return end
 
-      local inputs = inputs or torch.Tensor(self.batch_size, 4, 5, 5*self.length)
+      local inputs = inputs or torch.Tensor(self.batch_size, 5, 5*self.length)
       local labels = labels or torch.Tensor(inputs:size(1))
 
       local n = 0
@@ -91,14 +92,14 @@ function Data:iterator(static, data)
             s = s.." "..ffi.string(torch.data(data.content:narrow(1, data.index[i][j][l], 1)))
          end
 
-         self:sequenceTo3DTensor(s, self.length, inputs:select(1, k))
+         self:sequenceTo2DTensor(s, self.length, inputs:select(1, k))
          labels[k] = i
       end
       return inputs, labels, n
    end
 end
 
-function Data:sequenceTo3DTensor(str, l, input)
+function Data:sequenceTo2DTensor(str, l, input)
 
    local str = str:lower()
    local count = 1
@@ -110,15 +111,16 @@ function Data:sequenceTo3DTensor(str, l, input)
          break
       end
 
-      local word_tensor = torch.Tensor(4,25)
+      local word_tensor = torch.Tensor(25)
       word_tensor:zero()
 
       for i=1, 4 do
          if self.dict[token:sub(i,i)] then 
-            word_tensor[i][self.dict[token:sub(i,i)]] = 1
+            word_tensor[self.dict[token:sub(i,i)]] = 1
          end
       end
-      word_tensor = torch.reshape(word_tensor, 4, 5, 5)
+
+      word_tensor = torch.reshape(word_tensor, 5, 5)
 
       tmp[count] = word_tensor
       count = count + 1
@@ -126,12 +128,14 @@ function Data:sequenceTo3DTensor(str, l, input)
 
    if #tmp < self.length then
       for i=#tmp+1, self.length do
-         tmp[i] = torch.Tensor(4,5,5):zero()
+         tmp[i] = torch.Tensor(5,5):zero()
       end
    end
 
-   local tmp2 = nn.JoinTable(3):forward(tmp)
-   for i=1, 4 do
-      input[i] = tmp2[i] 
+   merge = nn.JoinTable(2):forward(tmp)
+   for i=1, 5 do
+      input[i] = merge[i]
+
    end
 end
+
