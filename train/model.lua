@@ -146,6 +146,8 @@ function Model:createModule(m)
       return Model:createTranspose(m)
    elseif m.module == "nn.Tanh" then
       return Model:createTanh(m)
+   elseif m.module == "nn.ReLU" then
+      return Model:createReLU(m)
    elseif m.module == "nn.Sequencer" then
       return Model:createSequencer(m)
    elseif m.module == "nn.Mean" then
@@ -193,6 +195,8 @@ function Model:makeCleanModule(m)
       return Model:toMean(m)
    elseif torch.typename(m) == "nn.Tanh" then
       return Model:newTanh()
+   elseif torch.typename(m) == "nn.ReLU" then
+      return Model:newReLU()
    else
       error("Module unrecognized")
    end
@@ -230,6 +234,10 @@ end
 
 function Model:createTanh(m)
    return nn.Tanh()
+end
+
+function Model:createReLU(m)
+   return nn.ReLU()
 end
 
 
@@ -283,6 +291,10 @@ end
 
 function Model:newTanh()
    return nn.Tanh()
+end
+
+function Model:newReLU()
+   return nn.ReLU()
 end
 
 -- Convert to a new max pooling
