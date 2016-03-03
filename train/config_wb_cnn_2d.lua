@@ -10,7 +10,7 @@ config = {}
 
 local alphabet = "qwertyuiopasdfghjklmxcvbn"
 
-seq_length = 200
+seq_length = 500
 
 config.dictsize = #alphabet
 
@@ -31,47 +31,46 @@ config.val_data.batch_size = 128
 -- The model
 config.model = {}
 -- 1 x 5 x 500 (nInputPlane x height x width)
-config.model[1] = {module = "nn.SpatialConvolution", nInputPlane = 1, nOutputPlane= 50, kW = 10, kH=5}
+config.model[1] = {module = "nn.SpatialConvolution", nInputPlane = 1, nOutputPlane= 50, kW = 8, kH=5}
 --100x1x491
 config.model[2] = {module = "nn.ReLU"}
 --100x1x491
-config.model[3] = {module = "nn.SpatialMaxPooling", kW = 10, kH = 1}
+config.model[3] = {module = "nn.SpatialMaxPooling", kW = 4, kH = 1}
 -- 100 x 1 x 49
 
-config.model[4] = {module = "nn.SpatialConvolution", nInputPlane = 50, nOutputPlane= 50, kW = 10, kH=1}
+config.model[4] = {module = "nn.SpatialConvolution", nInputPlane = 50, nOutputPlane= 50, kW = 8, kH=1}
 config.model[5] = {module = "nn.ReLU"}
 config.model[6] = {module = "nn.SpatialMaxPooling", kW =4 , kH = 1}
 -- 100 x 1 x 10
 
---[[
--- 110 x 256
-config.model[7] = {module = "nn.TemporalConvolution", inputFrameSize = 256, outputFrameSize = 256, kW = 3}
-config.model[8] = {module = "nn.Threshold"}
--- 108 x 256
-config.model[9] = {module = "nn.TemporalConvolution", inputFrameSize = 256, outputFrameSize = 256, kW = 3}
-config.model[10] = {module = "nn.Threshold"}
--- 106 x 256
-config.model[11] = {module = "nn.TemporalConvolution", inputFrameSize = 256, outputFrameSize = 256, kW = 3}
-config.model[12] = {module = "nn.Threshold"}
--- 104 x 256
-config.model[13] = {module = "nn.TemporalConvolution", inputFrameSize = 256, outputFrameSize = 256, kW = 3}
-config.model[14] = {module = "nn.Threshold"}
-config.model[15] = {module = "nn.TemporalMaxPooling", kW = 3, dW = 3}
+config.model[7] = {module = "nn.SpatialConvolution", nInputPlane = 50, nOutputPlane= 50, kW = 4, kH=1}
+config.model[8] = {module = "nn.ReLU"}
+
+config.model[9] = {module = "nn.SpatialConvolution", nInputPlane = 50, nOutputPlane= 50, kW = 4, kH=1}
+config.model[10] = {module = "nn.ReLU"}
+
+config.model[11] = {module = "nn.SpatialConvolution", nInputPlane = 50, nOutputPlane= 50, kW = 4, kH=1}
+config.model[12] = {module = "nn.ReLU"}
+
+config.model[13] = {module = "nn.SpatialConvolution", nInputPlane = 50, nOutputPlane= 50, kW = 4, kH=1}
+config.model[14] = {module = "nn.ReLU"}
+config.model[15] = {module = "nn.SpatialMaxPooling", kW =4 , kH = 1}
+
 
 --]]
 -- 34 x 256
-config.model[7] = {module = "nn.Reshape", dimension1 = 1100, dimension2 = nil, dimension3 = nil }
+config.model[16] = {module = "nn.Reshape", dimension1 = 1750, dimension2 = nil, dimension3 = nil }
 -- 8704
-config.model[8] = {module = "nn.Linear", inputSize = 1100, outputSize = 512}
-config.model[9] = {module = "nn.Threshold"}
-config.model[10] = {module = "nn.Dropout", p = 0.5}
+config.model[17] = {module = "nn.Linear", inputSize = 1750, outputSize = 1024}
+config.model[18] = {module = "nn.Threshold"}
+config.model[19] = {module = "nn.Dropout", p = 0.5}
 -- 1024
---config.model[11] = {module = "nn.Linear", inputSize = 512, outputSize = 512}
---config.model[12] = {module = "nn.Threshold"}
---config.model[13] = {module = "nn.Dropout", p = 0.5}
+config.model[20] = {module = "nn.Linear", inputSize = 1024, outputSize = 1024}
+config.model[21] = {module = "nn.Threshold"}
+config.model[22] = {module = "nn.Dropout", p = 0.5}
 -- 1024
-config.model[11] = {module = "nn.Linear", inputSize = 512, outputSize = 5}
-config.model[12] = {module = "nn.LogSoftMax"}
+config.model[23] = {module = "nn.Linear", inputSize = 1024, outputSize = 5}
+config.model[24] = {module = "nn.LogSoftMax"}
 
 
 -- The loss
