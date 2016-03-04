@@ -77,8 +77,8 @@ function main.argparse()
       require("data")
    elseif opt.format == "wb" and opt.model == "cnn" then
       print("Run wubi format and cnn model...")
-      require("config_wb_cnn_2d")
-      require("data_wb_2d")
+      require("config_wb_cnn")
+      require("data_wb")
    else 
       error("Wrong format")
    end

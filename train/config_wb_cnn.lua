@@ -31,24 +31,24 @@ config.val_data.batch_size = 128
 -- The model
 config.model = {}
 -- 4 x 5 x 5 x seq_length
-config.model[1] = {module = "nn.Reshape", dimension1 = 4, dimension2 = 50, dimension3 = 50 }
+--config.model[1] = {module = "nn.Reshape", dimension1 = 4, dimension2 = 50, dimension3 = 50 }
 -- 4 x 50 x 50
-config.model[2] = {module = "nn.SpatialConvolution", nInputPlane = 4, nOutputPlane= 100, kW = 6, kH=6}
-config.model[3] = {module = "nn.ReLU"}
-config.model[4] = {module = "nn.SpatialMaxPooling", kW = 3, kH = 3}
+config.model[1] = {module = "nn.SpatialConvolution", nInputPlane = 4, nOutputPlane= 100, kW = 20, kH=5, dW = 5, dH = 1}
+config.model[2] = {module = "nn.ReLU"}
+config.model[3] = {module = "nn.SpatialMaxPooling", kW = 2, kH = 1, dW=2, dH=1}
 
-config.model[5] = {module = "nn.SpatialConvolution", nInputPlane = 100, nOutputPlane= 100, kW = 6, kH=6}
-config.model[6] = {module = "nn.ReLU"}
-config.model[7] = {module = "nn.SpatialMaxPooling", kW = 3, kH = 3}
+config.model[4] = {module = "nn.SpatialConvolution", nInputPlane = 100, nOutputPlane= 100, kW = 2, kH=1, dW = 1, dH = 1}
+config.model[5] = {module = "nn.ReLU"}
+config.model[6] = {module = "nn.SpatialMaxPooling", kW = 2, kH = 1, dW=2, dH=1}
 
-config.model[8] = {module = "nn.Reshape", dimension1 = 900, dimension2 = nil, dimension3 = nil }
+config.model[7] = {module = "nn.Reshape", dimension1 = 2300, dimension2 = nil, dimension3 = nil }
 
-config.model[9] = {module = "nn.Linear", inputSize = 900, outputSize = 900}
-config.model[10] = {module = "nn.Threshold"}
-config.model[11] = {module = "nn.Dropout", p = 0.5}
+config.model[8] = {module = "nn.Linear", inputSize = 2300, outputSize = 1024}
+config.model[9] = {module = "nn.Threshold"}
+config.model[10] = {module = "nn.Dropout", p = 0.5}
 
-config.model[12] = {module = "nn.Linear", inputSize = 900, outputSize = 5}
-config.model[13] = {module = "nn.LogSoftMax"}
+config.model[11] = {module = "nn.Linear", inputSize = 1024, outputSize = 5}
+config.model[12] = {module = "nn.LogSoftMax"}
 
 -- The loss
 config.loss = nn.ClassNLLCriterion

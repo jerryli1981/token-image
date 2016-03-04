@@ -10,7 +10,7 @@ config = {}
 
 local alphabet = "qwertyuiopasdfghjklmxcvbn"
 
-seq_length = 100
+seq_length = 500
 
 config.dictsize = #alphabet
 
@@ -33,7 +33,7 @@ config.val_data.batch_size = 128
 -- The model
 config.model = {}
 -- 1 x 5 x 500 (nInputPlane x height x width)
-config.model[1] = {module = "nn.SpatialConvolution", nInputPlane = 1, nOutputPlane= 100, kW = 10, kH=5, dW = 5, dH = 1}
+config.model[1] = {module = "nn.SpatialConvolution", nInputPlane = 1, nOutputPlane= 100, kW = 20, kH=5, dW = 5, dH = 1}
 config.model[2] = {module = "nn.ReLU"}
 --100x1x99
 config.model[3] = {module = "nn.SpatialMaxPooling", kW = 2, kH = 1, dW=2, dH=1}
