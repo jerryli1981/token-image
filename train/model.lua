@@ -262,7 +262,7 @@ function Model:createTemporalConvolution(m)
 end
 
 function Model:createSpatialConvolution(m)
-   return nn.SpatialConvolution(m.nInputPlane, m.nOutputPlane, m.kW, m.kH)
+   return nn.SpatialConvolution(m.nInputPlane, m.nOutputPlane, m.kW, m.kH, m.dW, m.dH)
 end
 
 function Model:createSpatialMaxPooling(m)
@@ -338,7 +338,7 @@ function Model:toTemporalConvolution(m)
 end
 
 function Model:toSpatialConvolution(m)
-   local new = nn.SpatialConvolution(m.nInputPlane, m.nOutputPlane, m.kW, m.kH)
+   local new = nn.SpatialConvolution(m.nInputPlane, m.nOutputPlane, m.kW, m.kH, m.dW, m.dH)
    new.weight:copy(m.weight)
    new.bias:copy(m.bias)
    return new

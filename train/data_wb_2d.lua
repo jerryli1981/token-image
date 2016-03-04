@@ -35,7 +35,7 @@ end
 
 function Data:getBatch(inputs, labels, data)
    local data = data or self.data
-   local inputs = inputs or torch.Tensor(self.batch_size, 1, 5, 5*self.length)
+   local inputs = inputs or torch.Tensor(self.batch_size, 1, 5*math.sqrt(self.length), 5*math.sqrt(self.length))
 
    local labels = labels or torch.Tensor(inputs:size(1))
 
@@ -64,14 +64,14 @@ function Data:iterator(static, data)
    if static == nil then static = true end
 
    if static then
-      inputs = torch.Tensor(self.batch_size, 1, 5, 5*self.length)
+      inputs = torch.Tensor(self.batch_size, 1, 5*math.sqrt(self.length), 5*math.sqrt(self.length))
       labels = torch.Tensor(inputs:size(1))
    end
 
    return function()
       if data.index[i] == nil then return end
 
-      local inputs = inputs or torch.Tensor(self.batch_size, 1, 5, 5*self.length)
+      local inputs = inputs or torch.Tensor(self.batch_size, 1, 5*math.sqrt(self.length), 5*math.sqrt(self.length))
       local labels = labels or torch.Tensor(inputs:size(1))
 
       local n = 0
@@ -132,10 +132,13 @@ function Data:sequenceTo2DTensor(str, l, input)
       end
    end
 
-   merge = nn.JoinTable(2):forward(tmp)
-   for i=1, 5 do
-      input[1][i] = merge[i]
-
+   idx = 1
+   for i=1, 5*math.sqrt(self.length), 5 do
+      for j=1, 5*math.sqrt(self.length), 5 do
+         input[1][{{i,i+4},{j,j+4}}] = tmp[idx]
+         idx = idx + 1
+      end
    end
+
 end
 
