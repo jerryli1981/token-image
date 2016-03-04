@@ -266,7 +266,7 @@ function Model:createSpatialConvolution(m)
 end
 
 function Model:createSpatialMaxPooling(m)
-   return nn.SpatialMaxPooling(m.kW, m.kH)
+   return nn.SpatialMaxPooling(m.kW, m.kH, m.dW, m.dH)
 end
 
 -- Create a new spatial max pooling model
@@ -303,7 +303,7 @@ function Model:toTemporalMaxPooling(m)
 end
 
 function Model:toSpatialMaxPooling(m)
-   return nn.SpatialMaxPooling(m.kW, m.kH)
+   return nn.SpatialMaxPooling(m.kW, m.kH, m.dW, m.dH)
 end
 
 -- Convert to a new reshape
