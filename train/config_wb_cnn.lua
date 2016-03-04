@@ -10,7 +10,7 @@ config = {}
 
 local alphabet = "qwertyuiopasdfghjklmxcvbn"
 
-seq_length = 100
+seq_length = 200
 
 config.dictsize = #alphabet
 
@@ -41,13 +41,14 @@ config.model[4] = {module = "nn.SpatialConvolution", nInputPlane = 100, nOutputP
 config.model[5] = {module = "nn.ReLU"}
 config.model[6] = {module = "nn.SpatialMaxPooling", kW = 2, kH = 1, dW=2, dH=1}
 
-config.model[7] = {module = "nn.Reshape", dimension1 = 2300, dimension2 = nil, dimension3 = nil }
+config.model[7] = {module = "nn.Reshape", dimension1 = 4800, dimension2 = nil, dimension3 = nil }
 
-config.model[8] = {module = "nn.Linear", inputSize = 2300, outputSize = 1024}
-config.model[9] = {module = "nn.Threshold"}
+config.model[8] = {module = "nn.Linear", inputSize = 4800, outputSize = 1024}
+config.model[9] = {module = "nn.ReLU"}
 config.model[10] = {module = "nn.Dropout", p = 0.5}
 
 config.model[11] = {module = "nn.Linear", inputSize = 1024, outputSize = 5}
+config.model[10] = {module = "nn.Dropout", p = 0.5}
 config.model[12] = {module = "nn.LogSoftMax"}
 
 -- The loss
