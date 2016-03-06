@@ -104,9 +104,13 @@ def transformation(content, label, wordDict):
                 vocab.add(word)
                 wordDict.write(word.encode("utf-8") + '\n')  
 
-    pys = transfer(toks, style=style, errors=error)
-    pys = ' '.join(list(itertools.chain(*pys))).encode('utf-8')
-    pys = transEscape(pys)
+    if transfer != None:
+        pys = transfer(toks, style=style, errors=error)
+        pys = ' '.join(list(itertools.chain(*pys))).encode('utf-8')
+        pys = transEscape(pys)
+    else:
+        pys = ' '.join(toks).encode('utf-8')
+        pys = transEscape(pys)
 
     exp = "\""+label+"\"" + str(',') + "\""+pys+"\""
     return exp
@@ -151,6 +155,10 @@ if __name__ == "__main__":
         error="default"
     elif args.format == "wb":
         transfer = wubi
+        style = None
+        error="ignore"
+    elif args.format =="origin":
+        transfer = None
         style = None
         error="ignore"
     else:
