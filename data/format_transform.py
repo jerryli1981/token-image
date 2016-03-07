@@ -8,6 +8,8 @@ import re
 import csv
 import itertools
 
+csv.field_size_limit(sys.maxsize)
+
 
 sys.path.insert(0, "../")
 
