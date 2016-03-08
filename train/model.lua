@@ -99,20 +99,22 @@ function Model:createParallel(model)
 
    local input = nn.Identity()()
 
+   window_size =4
+
    inputs = {}
-   for i=1, 5*config.seq_length, 20 do
-      ipt = nn.Narrow(4, i, 20)(input)  
+   for i=1, 5*config.seq_length, 5*window_size do
+      ipt = nn.Narrow(4, i, 5*window_size)(input)  
       table.insert(inputs, ipt)
    end
    sequential_list = {}
-   for i=1, config.seq_length/4 do
+   for i=1, config.seq_length/window_size do
       seq = nn.Sequential()
       table.insert(sequential_list, seq)
    end
 
    for i, m in ipairs(model) do
-      if i < 4 then
-         for j=1, config.seq_length/4 do
+      if i < 7 then
+         for j=1, config.seq_length/window_size do
             seq = sequential_list[j]
             seq:add(Model:createModule(m))
          end
@@ -120,7 +122,7 @@ function Model:createParallel(model)
    end
 
    cnn=nn.ParallelTable()
-   for j=1, config.seq_length/4 do
+   for j=1, config.seq_length/window_size do
       seq = sequential_list[j]
       cnn:add(seq)
    end
@@ -137,7 +139,7 @@ function Model:createParallel(model)
       :add(vecs_to_input)
 
    for i, m in ipairs(model) do
-      if i >= 4 then
+      if i >= 7 then
          sim_module:add(Model:createModule(m))
       end
    end
@@ -149,15 +151,16 @@ end
 function Model:makeCleanParallel(model)
 
    local input = nn.Identity()()
+   window_size =4
 
    inputs = {}
-   for i=1, 5*config.seq_length, 20 do
-      ipt = nn.Narrow(4, i, 20)(input)
+   for i=1, 5*config.seq_length, 5*window_size do
+      ipt = nn.Narrow(4, i, 5*window_size)(input)
       table.insert(inputs, ipt)
    end
 
    sequential_list = {}
-   for i=1, config.seq_length/4 do
+   for i=1, config.seq_length/window_size do
       seq = nn.Sequential()
       table.insert(sequential_list, seq)
    end
@@ -169,7 +172,7 @@ function Model:makeCleanParallel(model)
    for i = 1, #seqModel.modules do
       local m = Model:makeCleanModule(seqModel.modules[i])
       if m then
-         for j=1, config.seq_length/4 do
+         for j=1, config.seq_length/window_size do
             seq = sequential_list[j]
             seq:add(m)
          end
@@ -177,7 +180,7 @@ function Model:makeCleanParallel(model)
    end
 
    cnn=nn.ParallelTable()
-   for j=1, config.seq_length/4 do
+   for j=1, config.seq_length/window_size do
       seq = sequential_list[j]
       cnn:add(seq)
    end
@@ -185,7 +188,6 @@ function Model:makeCleanParallel(model)
    cnn_out = cnn(inputs)
    merged = nn.JoinTable(4){cnn_out}
 
-   
    local vecs_to_input = nn.gModule({input}, {merged})
    
    sim_m = model:findModules("nn.Sequential")[1]
