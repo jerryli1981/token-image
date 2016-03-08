@@ -44,7 +44,7 @@ config.model[3] = {module = "nn.SpatialMaxPooling", kW = 2, kH = 2, dW=1, dH=1}
 --config.model[8] = {module = "nn.SpatialMaxPooling", kW = 3, kH = 1, dW=3, dH=1}
 
 
-config.model[4] = {module = "nn.Reshape", dimension1 = 128, dimension2 = 64*9, dimension3 = nil }
+config.model[4] = {module = "nn.Reshape", dimension1 = 64*9, dimension2 = nil, dimension3 = nil }
 config.model[5] = {module = "nn.Linear", inputSize = 64*9*config.seq_length, outputSize = 1024}
 config.model[6] = {module = "nn.ReLU"}
 config.model[7] = {module = "nn.Dropout", p = 0.5}
