@@ -10,7 +10,7 @@ config = {}
 
 local alphabet = "qwertyuiopasdfghjklmxcvbn"
 
-config.seq_length = 300
+config.seq_length = 100
 
 config.dictsize = #alphabet
 
@@ -57,9 +57,9 @@ config.model[13] = {module = "nn.Threshold"}
 config.model[14] = {module = "nn.TemporalMaxPooling", kW = 3, dW = 3}
 -- 2 x 300
 
-config.model[15] = {module = "nn.Reshape", dimension1 = 7680, dimension2 = nil, dimension3 = nil }
+config.model[15] = {module = "nn.Reshape", dimension1 = 2048, dimension2 = nil, dimension3 = nil }
 
-config.model[16] = {module = "nn.Linear", inputSize = 7680, outputSize = 1024}
+config.model[16] = {module = "nn.Linear", inputSize = 2048, outputSize = 1024}
 config.model[17] = {module = "nn.Threshold"}
 config.model[18] = {module = "nn.Dropout", p = 0.5}
 
