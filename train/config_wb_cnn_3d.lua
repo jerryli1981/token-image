@@ -41,31 +41,34 @@ config.model[5] = {module = "nn.ReLU"}
 config.model[6] = {module = "nn.SpatialMaxPooling", kW = 2, kH = 2, dW=1, dH=1}
 -- 32 x 1 x (1 x 300)
 
-config.model[7] = {module = "nn.Reshape", dimension1 = 32, dimension2 = 300, dimension3 = nil }
+config.model[7] = {module = "nn.Reshape", dimension1 = 32, dimension2 = config.seq_length, dimension3 = nil }
 -- 32 x 300
 
-config.model[8] = {module = "nn.TemporalConvolution", inputFrameSize = 300, outputFrameSize = 300, kW = 7}
-config.model[9] = {module = "nn.Threshold"}
-config.model[10] = {module = "nn.TemporalMaxPooling", kW = 3, dW = 3}
--- 8 x 300
+config.model[8] = {module = "nn.Reshape", dimension1 = config.seq_length, dimension2 = 32, dimension3 = nil }
+-- 300 x 32
 
---config.model[11] = {module = "nn.TemporalConvolution", inputFrameSize = 300, outputFrameSize = 300, kW = 3}
---config.model[12] = {module = "nn.Threshold"}
---config.model[13] = {module = "nn.TemporalMaxPooling", kW = 3, dW = 3}
+config.model[9] = {module = "nn.TemporalConvolution", inputFrameSize = 32, outputFrameSize = 256, kW = 7}
+config.model[10] = {module = "nn.Threshold"}
+config.model[11] = {module = "nn.TemporalMaxPooling", kW = 3, dW = 3}
+-- ? x 256
+
+config.model[12] = {module = "nn.TemporalConvolution", inputFrameSize = 256, outputFrameSize = 256, kW = 7}
+config.model[13] = {module = "nn.Threshold"}
+config.model[14] = {module = "nn.TemporalMaxPooling", kW = 3, dW = 3}
 -- 2 x 300
 
-config.model[11] = {module = "nn.Reshape", dimension1 = 2400, dimension2 = nil, dimension3 = nil }
+config.model[15] = {module = "nn.Reshape", dimension1 = 7680, dimension2 = nil, dimension3 = nil }
 
-config.model[12] = {module = "nn.Linear", inputSize = 2400, outputSize = 1024}
-config.model[13] = {module = "nn.Threshold"}
-config.model[14] = {module = "nn.Dropout", p = 0.5}
+config.model[16] = {module = "nn.Linear", inputSize = 7680, outputSize = 1024}
+config.model[17] = {module = "nn.Threshold"}
+config.model[18] = {module = "nn.Dropout", p = 0.5}
 
-config.model[15] = {module = "nn.Linear", inputSize = 1024, outputSize = 1024}
-config.model[16] = {module = "nn.Threshold"}
-config.model[17] = {module = "nn.Dropout", p = 0.5}
+config.model[19] = {module = "nn.Linear", inputSize = 1024, outputSize = 1024}
+config.model[20] = {module = "nn.Threshold"}
+config.model[21] = {module = "nn.Dropout", p = 0.5}
 
-config.model[18] = {module = "nn.Linear", inputSize = 1024, outputSize = 5}
-config.model[19] = {module = "nn.LogSoftMax"}
+config.model[22] = {module = "nn.Linear", inputSize = 1024, outputSize = 5}
+config.model[23] = {module = "nn.LogSoftMax"}
 
 
 
