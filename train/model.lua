@@ -111,7 +111,7 @@ function Model:createParallel(model)
    end
 
    for i, m in ipairs(model) do
-      if i < 8 then
+      if i < 5 then
          for j=1, config.seq_length do
             seq = sequential_list[j]
             seq:add(Model:createModule(m))
@@ -135,7 +135,7 @@ function Model:createParallel(model)
       :add(vecs_to_input)
 
    for i, m in ipairs(model) do
-      if i >= 8 then
+      if i >= 5 then
          sim_module:add(Model:createModule(m))
       end
    end
