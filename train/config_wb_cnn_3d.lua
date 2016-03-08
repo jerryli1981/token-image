@@ -31,23 +31,23 @@ config.val_data.batch_size = 128
 -- The model
 config.model = {}
 -- 4 x 5 x (5 x seq_length)
-config.model[1] = {module = "nn.SpatialConvolution", nInputPlane = 4, nOutputPlane= 32, kW=2, kH=2, dW = 1, dH = 1}
+config.model[1] = {module = "nn.SpatialConvolution", nInputPlane = 4, nOutputPlane= 256, kW=2, kH=2, dW = 1, dH = 1}
 config.model[2] = {module = "nn.ReLU"}
 config.model[3] = {module = "nn.SpatialMaxPooling", kW = 2, kH = 2, dW=1, dH=1}
 -- 32 x 3 x (3 x 300)
 
-config.model[4] = {module = "nn.SpatialConvolution", nInputPlane = 32, nOutputPlane= 32, kW = 2, kH=2, dW = 1, dH = 1}
+config.model[4] = {module = "nn.SpatialConvolution", nInputPlane = 256, nOutputPlane= 256, kW = 2, kH=2, dW = 1, dH = 1}
 config.model[5] = {module = "nn.ReLU"}
 config.model[6] = {module = "nn.SpatialMaxPooling", kW = 2, kH = 2, dW=1, dH=1}
 -- 32 x 1 x (1 x 300)
 
-config.model[7] = {module = "nn.Reshape", dimension1 = 32, dimension2 = config.seq_length, dimension3 = nil }
+config.model[7] = {module = "nn.Reshape", dimension1 = 256, dimension2 = config.seq_length, dimension3 = nil }
 -- 32 x 300
 
-config.model[8] = {module = "nn.Reshape", dimension1 = config.seq_length, dimension2 = 32, dimension3 = nil }
+config.model[8] = {module = "nn.Reshape", dimension1 = config.seq_length, dimension2 = 256, dimension3 = nil }
 -- 300 x 32
 
-config.model[9] = {module = "nn.TemporalConvolution", inputFrameSize = 32, outputFrameSize = 256, kW = 7}
+config.model[9] = {module = "nn.TemporalConvolution", inputFrameSize = 256, outputFrameSize = 256, kW = 7}
 config.model[10] = {module = "nn.Threshold"}
 config.model[11] = {module = "nn.TemporalMaxPooling", kW = 3, dW = 3}
 -- ? x 256
