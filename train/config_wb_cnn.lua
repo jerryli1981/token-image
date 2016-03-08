@@ -31,9 +31,9 @@ config.val_data.batch_size = 128
 -- The model
 config.model = {}
 -- 4 x 5 x (5 x seq_length)
-config.model[1] = {module = "nn.SpatialConvolution", nInputPlane = 4, nOutputPlane= 128, kW=4, kH=4, dW = 1, dH = 1}
+config.model[1] = {module = "nn.SpatialConvolution", nInputPlane = 4, nOutputPlane= 256, kW=5, kH=5, dW = 1, dH = 1}
 config.model[2] = {module = "nn.ReLU"}
-config.model[3] = {module = "nn.SpatialMaxPooling", kW = 2, kH = 2, dW=1, dH=1}
+--config.model[3] = {module = "nn.SpatialMaxPooling", kW = 2, kH = 2, dW=1, dH=1}
 
 --config.model[4] = {module = "nn.SpatialConvolution", nInputPlane = 128, nOutputPlane= 128, kW = 2, kH=2, dW = 1, dH = 1}
 --config.model[5] = {module = "nn.ReLU"}
@@ -41,22 +41,22 @@ config.model[3] = {module = "nn.SpatialMaxPooling", kW = 2, kH = 2, dW=1, dH=1}
 
 
 -- 128 x 1 x (1 x seq_length)
-config.model[4] = {module = "nn.SpatialConvolution", nInputPlane = 128, nOutputPlane= 128, kW = 5, kH=1, dW = 1, dH = 1}
-config.model[5] = {module = "nn.ReLU"}
-config.model[6] = {module = "nn.SpatialMaxPooling", kW = 3, kH = 1, dW=3, dH=1}
+config.model[3] = {module = "nn.SpatialConvolution", nInputPlane = 256, nOutputPlane= 256, kW = 5, kH=1, dW = 1, dH = 1}
+config.model[4] = {module = "nn.ReLU"}
+config.model[5] = {module = "nn.SpatialMaxPooling", kW = 3, kH = 1, dW=3, dH=1}
 
-config.model[7] = {module = "nn.SpatialConvolution", nInputPlane = 128, nOutputPlane= 128, kW = 5, kH=1, dW = 1, dH = 1}
-config.model[8] = {module = "nn.ReLU"}
-config.model[9] = {module = "nn.SpatialMaxPooling", kW = 3, kH = 1, dW=3, dH=1}
+config.model[6] = {module = "nn.SpatialConvolution", nInputPlane = 256, nOutputPlane= 256, kW = 5, kH=1, dW = 1, dH = 1}
+config.model[7] = {module = "nn.ReLU"}
+config.model[8] = {module = "nn.SpatialMaxPooling", kW = 3, kH = 1, dW=3, dH=1}
 
 
-config.model[10] = {module = "nn.Reshape", dimension1 = 128*9, dimension2 = nil, dimension3 = nil }
+config.model[9] = {module = "nn.Reshape", dimension1 = 256*9, dimension2 = nil, dimension3 = nil }
 
-config.model[11] = {module = "nn.Linear", inputSize = 128*9, outputSize = 1024}
-config.model[12] = {module = "nn.ReLU"}
-config.model[13] = {module = "nn.Dropout", p = 0.5}
-config.model[14] = {module = "nn.Linear", inputSize = 1024, outputSize = 5}
-config.model[15] = {module = "nn.LogSoftMax"}
+config.model[10] = {module = "nn.Linear", inputSize = 256*9, outputSize = 1024}
+config.model[11] = {module = "nn.ReLU"}
+config.model[12] = {module = "nn.Dropout", p = 0.5}
+config.model[13] = {module = "nn.Linear", inputSize = 1024, outputSize = 5}
+config.model[14] = {module = "nn.LogSoftMax"}
 
 --[[
 config.model[4] = {module = "nn.SpatialConvolution", nInputPlane = 128, nOutputPlane= 128, kW = 20, kH=1, dW = 5, dH = 1}
