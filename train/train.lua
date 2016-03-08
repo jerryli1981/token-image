@@ -70,7 +70,7 @@ function Train:run(epoches,logfunc)
    end
 end
 
-function Train:run_wb(epoches,logfunc)
+function Train:run_wb_3d(epoches,logfunc)
    -- Recapture the weights
    if self.recapture then
       self.params,self.grads = nil,nil
@@ -80,7 +80,7 @@ function Train:run_wb(epoches,logfunc)
    end
    -- The loop
    for i = 1,epoches do
-      self:batchStep_wb()
+      self:batchStep_wb_3d()
       if logfunc then logfunc(self,i) end
    end
 end
@@ -198,7 +198,7 @@ function Train:batchStep_new()
 end
 
 -- Run for one batch step
-function Train:batchStep_wb()
+function Train:batchStep_wb_3d()
 
    self.clock = sys.clock()
    -- Get a batch of data
@@ -261,10 +261,9 @@ function Train:batchStep_wb_2d()
    -- Get a batch of data
    self.batch_untyped,self.labels_untyped = self.data:getBatch(self.batch_untyped,self.labels_untyped)
 
-   -- Make the data to correct type
-   self.batch = self.batch or self.batch_untyped:contiguous():type(self.model:type())
+   self.batch = self.batch or self.batch_untyped:transpose(2, 3):contiguous():type(self.model:type())
    self.labels = self.labels or self.labels_untyped:type(self.model:type())
-   self.batch:copy(self.batch_untyped:contiguous())
+   self.batch:copy(self.batch_untyped:transpose(2, 3):contiguous())
    self.labels:copy(self.labels_untyped)
 
    if self.model:type() == "torch.CudaTensor" then cutorch.synchronize() end

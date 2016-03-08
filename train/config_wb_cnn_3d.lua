@@ -31,32 +31,61 @@ config.val_data.batch_size = 128
 -- The model
 config.model = {}
 -- 4 x 5 x (5 x seq_length)
-config.model[1] = {module = "nn.SpatialConvolution", nInputPlane = 4, nOutputPlane= 64, kW=5, kH=5, dW = 1, dH = 1}
+config.model[1] = {module = "nn.SpatialConvolution", nInputPlane = 4, nOutputPlane= 32, kW=2, kH=2, dW = 1, dH = 1}
 config.model[2] = {module = "nn.ReLU"}
---config.model[3] = {module = "nn.SpatialMaxPooling", kW = 2, kH = 2, dW=1, dH=1}
+config.model[3] = {module = "nn.SpatialMaxPooling", kW = 2, kH = 2, dW=1, dH=1}
+-- 32 x 3 x (3 x 300)
 
---config.model[4] = {module = "nn.SpatialConvolution", nInputPlane = 128, nOutputPlane= 128, kW = 2, kH=2, dW = 1, dH = 1}
---config.model[5] = {module = "nn.ReLU"}
---config.model[6] = {module = "nn.SpatialMaxPooling", kW = 2, kH = 2, dW=1, dH=1}
+config.model[4] = {module = "nn.SpatialConvolution", nInputPlane = 32, nOutputPlane= 32, kW = 2, kH=2, dW = 1, dH = 1}
+config.model[5] = {module = "nn.ReLU"}
+config.model[6] = {module = "nn.SpatialMaxPooling", kW = 2, kH = 2, dW=1, dH=1}
+-- 32 x 1 x (1 x 300)
+
+config.model[7] = {module = "nn.Reshape", dimension1 = 32, dimension2 = 300, dimension3 = nil }
+-- 32 x 300
+
+config.model[8] = {module = "nn.TemporalConvolution", inputFrameSize = 300, outputFrameSize = 300, kW = 7}
+config.model[9] = {module = "nn.Threshold"}
+config.model[10] = {module = "nn.TemporalMaxPooling", kW = 3, dW = 3}
+-- 8 x 300
+
+--config.model[11] = {module = "nn.TemporalConvolution", inputFrameSize = 300, outputFrameSize = 300, kW = 3}
+--config.model[12] = {module = "nn.Threshold"}
+--config.model[13] = {module = "nn.TemporalMaxPooling", kW = 3, dW = 3}
+-- 2 x 300
+
+config.model[11] = {module = "nn.Reshape", dimension1 = 2400, dimension2 = nil, dimension3 = nil }
+
+config.model[12] = {module = "nn.Linear", inputSize = 2400, outputSize = 1024}
+config.model[13] = {module = "nn.Threshold"}
+config.model[14] = {module = "nn.Dropout", p = 0.5}
+
+config.model[15] = {module = "nn.Linear", inputSize = 1024, outputSize = 1024}
+config.model[16] = {module = "nn.Threshold"}
+config.model[17] = {module = "nn.Dropout", p = 0.5}
+
+config.model[18] = {module = "nn.Linear", inputSize = 1024, outputSize = 5}
+config.model[19] = {module = "nn.LogSoftMax"}
 
 
--- 128 x 1 x (1 x seq_length)
-config.model[3] = {module = "nn.SpatialConvolution", nInputPlane = 64, nOutputPlane= 64, kW = 5, kH=1, dW = 1, dH = 1}
-config.model[4] = {module = "nn.ReLU"}
-config.model[5] = {module = "nn.SpatialMaxPooling", kW = 3, kH = 1, dW=3, dH=1}
-
-config.model[6] = {module = "nn.SpatialConvolution", nInputPlane = 64, nOutputPlane= 64, kW = 5, kH=1, dW = 1, dH = 1}
-config.model[7] = {module = "nn.ReLU"}
-config.model[8] = {module = "nn.SpatialMaxPooling", kW = 3, kH = 1, dW=3, dH=1}
 
 
-config.model[9] = {module = "nn.Reshape", dimension1 = 64*31, dimension2 = nil, dimension3 = nil }
+--config.model[3] = {module = "nn.SpatialConvolution", nInputPlane = 64, nOutputPlane= 64, kW = 5, kH=1, dW = 1, dH = 1}
+--config.model[4] = {module = "nn.ReLU"}
+--config.model[5] = {module = "nn.SpatialMaxPooling", kW = 3, kH = 1, dW=3, dH=1}
 
-config.model[10] = {module = "nn.Linear", inputSize = 64*31, outputSize = 1024}
-config.model[11] = {module = "nn.ReLU"}
-config.model[12] = {module = "nn.Dropout", p = 0.5}
-config.model[13] = {module = "nn.Linear", inputSize = 1024, outputSize = 5}
-config.model[14] = {module = "nn.LogSoftMax"}
+--config.model[6] = {module = "nn.SpatialConvolution", nInputPlane = 64, nOutputPlane= 64, kW = 5, kH=1, dW = 1, dH = 1}
+--config.model[7] = {module = "nn.ReLU"}
+--config.model[8] = {module = "nn.SpatialMaxPooling", kW = 3, kH = 1, dW=3, dH=1}
+
+
+--
+
+--config.model[5] = {module = "nn.Linear", inputSize = 32, outputSize = 5}
+--config.model[11] = {module = "nn.ReLU"}
+--config.model[12] = {module = "nn.Dropout", p = 0.5}
+--config.model[13] = {module = "nn.Linear", inputSize = 1024, outputSize = 5}
+--config.model[6] = {module = "nn.LogSoftMax"}
 
 --[[
 config.model[4] = {module = "nn.SpatialConvolution", nInputPlane = 128, nOutputPlane= 128, kW = 20, kH=1, dW = 5, dH = 1}

@@ -77,8 +77,8 @@ function main.argparse()
       require("data")
    elseif opt.format == "wb" and opt.model == "cnn" then
       print("Run wubi format and cnn model...")
-      require("config_wb_cnn")
-      require("data_wb")
+      require("config_wb_cnn_3d")
+      require("data_wb_3d")
    else 
       error("Wrong format")
    end
@@ -171,7 +171,7 @@ function main.run()
       end
       print("Training for era "..i)
       if opt.format == "wb" then
-         main.train:run_wb_2d(config.main.epoches, main.trainlog)
+         main.train:run_wb_3d(config.main.epoches, main.trainlog)
       else
          main.train:run(config.main.epoches, main.trainlog)
       end

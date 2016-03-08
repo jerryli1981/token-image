@@ -111,7 +111,7 @@ function Model:createParallel(model)
    end
 
    for i, m in ipairs(model) do
-      if i < 3 then
+      if i < 7 then
          for j=1, config.seq_length do
             seq = sequential_list[j]
             seq:add(Model:createModule(m))
@@ -126,16 +126,18 @@ function Model:createParallel(model)
    end
 
    cnn_out = cnn(inputs)
+
    merged = nn.JoinTable(4){cnn_out}
    
    local vecs_to_input = nn.gModule({input}, {merged})
 
    -- define similarity model architecture
+
    local sim_module = nn.Sequential()
       :add(vecs_to_input)
 
    for i, m in ipairs(model) do
-      if i >= 3 then
+      if i >= 7 then
          sim_module:add(Model:createModule(m))
       end
    end
@@ -186,7 +188,6 @@ function Model:makeCleanParallel(model)
    
    local vecs_to_input = nn.gModule({input}, {merged})
    
-
    sim_m = model:findModules("nn.Sequential")[1]
    local sim_module = nn.Sequential()
    sim_module:add(vecs_to_input)
@@ -196,7 +197,7 @@ function Model:makeCleanParallel(model)
          sim_module:add(m)
       end
    end
-   return sim_module
+   return sim_module 
 
 end
 
