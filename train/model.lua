@@ -5,19 +5,24 @@ By Xiang Zhang @ New York University
 
 -- Prerequisite
 require("nn")
+require("nngraph")
 
 -- The class
 local Model = torch.class("Model")
 
 function Model:__init(config)
+
    -- Create a sequential for self
    if config.file then
-      self.sequential = Model:makeCleanSequential(torch.load(config.file))
+      --self.sequential = Model:makeCleanSequential(torch.load(config.file))
+      self.sequential = Model:makeCleanParallel(torch.load(config.file))
    else
-      self.sequential = Model:createSequential(config)
+      --self.sequential = Model:createSequential(config)
+      self.sequential = Model:createParallel(config)
    end
    self.p = config.p or 0.5
    self.tensortype = torch.getdefaulttensortype()
+   
 end
 
 -- Get the parameters of the model
@@ -56,7 +61,8 @@ end
 -- Switch to a different data mode
 function Model:type(tensortype)
    if tensortype ~= nil then
-      self.sequential = self:makeCleanSequential(self.sequential)
+      --self.sequential = self:makeCleanSequential(self.sequential)
+      self.sequential = self:makeCleanParallel(self.sequential)
       self.sequential:type(tensortype)
       self.tensortype = tensortype
    end
@@ -86,6 +92,112 @@ function Model:changeSequentialDropouts(model,p)
       end
    end
    return model
+end
+
+-- Create a parallel model using configurations
+function Model:createParallel(model)
+
+   local input = nn.Identity()()
+
+   inputs = {}
+   for i=1, 5*config.seq_length, 5 do
+      ipt = nn.Narrow(4, i, 5)(input)  
+      table.insert(inputs, ipt)
+   end
+   sequential_list = {}
+   for i=1, config.seq_length do
+      seq = nn.Sequential()
+      table.insert(sequential_list, seq)
+   end
+
+   for i, m in ipairs(model) do
+      if i < 8 then
+         for j=1, config.seq_length do
+            seq = sequential_list[j]
+            seq:add(Model:createModule(m))
+         end
+      end
+   end
+
+   cnn=nn.ParallelTable()
+   for j=1, config.seq_length do
+      seq = sequential_list[j]
+      cnn:add(seq)
+   end
+
+   cnn_out = cnn(inputs)
+   merged = nn.JoinTable(2){cnn_out}
+   
+   local vecs_to_input = nn.gModule({input}, {merged})
+
+   -- define similarity model architecture
+   local sim_module = nn.Sequential()
+      :add(vecs_to_input)
+
+   for i, m in ipairs(model) do
+      if i >= 8 then
+         sim_module:add(Model:createModule(m))
+      end
+   end
+
+   return sim_module
+
+end
+
+function Model:makeCleanParallel(model)
+
+   local input = nn.Identity()()
+
+   inputs = {}
+   for i=1, 5*config.seq_length, 5 do
+      ipt = nn.Narrow(4, i, 5)(input)
+      table.insert(inputs, ipt)
+   end
+
+   sequential_list = {}
+   for i=1, config.seq_length do
+      seq = nn.Sequential()
+      table.insert(sequential_list, seq)
+   end
+
+   gmod = model:findModules("nn.gModule")[1]   
+   seqModel = gmod:findModules("nn.Sequential")[1]
+
+
+   for i = 1, #seqModel.modules do
+      local m = Model:makeCleanModule(seqModel.modules[i])
+      if m then
+         for j=1, config.seq_length do
+            seq = sequential_list[j]
+            seq:add(m)
+         end
+      end
+   end
+
+   cnn=nn.ParallelTable()
+   for j=1, config.seq_length do
+      seq = sequential_list[j]
+      cnn:add(seq)
+   end
+
+   cnn_out = cnn(inputs)
+   merged = nn.JoinTable(2){cnn_out}
+
+   
+   local vecs_to_input = nn.gModule({input}, {merged})
+   
+
+   sim_m = model:findModules("nn.Sequential")[1]
+   local sim_module = nn.Sequential()
+   sim_module:add(vecs_to_input)
+   for i=2, #sim_m.modules do
+      local m = Model:makeCleanModule(sim_m.modules[i])
+      if m then
+         sim_module:add(m)
+      end
+   end
+   return sim_module
+
 end
 
 -- Create a sequential model using configurations

@@ -10,7 +10,7 @@ config = {}
 
 local alphabet = "qwertyuiopasdfghjklmxcvbn"
 
-seq_length = 200
+config.seq_length = 100
 
 config.dictsize = #alphabet
 
@@ -18,38 +18,38 @@ config.dictsize = #alphabet
 config.train_data = {}
 config.train_data.file = paths.concat(paths.cwd(), "../data/train_wb.t7b")
 config.train_data.alphabet = alphabet
-config.train_data.length = seq_length
+config.train_data.length = config.seq_length
 config.train_data.batch_size = 128
 
 -- Validation data
 config.val_data = {}
 config.val_data.file =  paths.concat(paths.cwd(), "../data/test_wb.t7b")
 config.val_data.alphabet = alphabet
-config.val_data.length = seq_length
+config.val_data.length = config.seq_length
 config.val_data.batch_size = 128
 
 -- The model
 config.model = {}
 -- 4 x 5 x (5 x seq_length)
-config.model[1] = {module = "nn.SpatialConvolution", nInputPlane = 4, nOutputPlane= 128, kW = 5, kH=5, dW = 5, dH = 1}
+config.model[1] = {module = "nn.SpatialConvolution", nInputPlane = 4, nOutputPlane= 64, kW = 2, kH=2, dW = 1, dH = 1}
 config.model[2] = {module = "nn.ReLU"}
---config.model[3] = {module = "nn.SpatialMaxPooling", kW = 3, kH = 1, dW=3, dH=1}
+config.model[3] = {module = "nn.SpatialMaxPooling", kW = 2, kH = 2, dW=1, dH=1}
 
-config.model[3] = {module = "nn.SpatialConvolution", nInputPlane = 128, nOutputPlane= 128, kW = 5, kH=1, dW = 1, dH = 1}
-config.model[4] = {module = "nn.ReLU"}
-config.model[5] = {module = "nn.SpatialMaxPooling", kW = 3, kH = 1, dW=3, dH=1}
+config.model[4] = {module = "nn.SpatialConvolution", nInputPlane = 64, nOutputPlane= 64, kW = 2, kH=2, dW = 1, dH = 1}
+config.model[5] = {module = "nn.ReLU"}
+config.model[6] = {module = "nn.SpatialMaxPooling", kW = 2, kH = 2, dW=1, dH=1}
 
-config.model[6] = {module = "nn.SpatialConvolution", nInputPlane = 128, nOutputPlane= 128, kW = 5, kH=1, dW = 1, dH = 1}
-config.model[7] = {module = "nn.ReLU"}
-config.model[8] = {module = "nn.SpatialMaxPooling", kW = 3, kH = 1, dW=3, dH=1}
+--config.model[6] = {module = "nn.SpatialConvolution", nInputPlane = 128, nOutputPlane= 128, kW = 5, kH=1, dW = 1, dH = 1}
+--config.model[7] = {module = "nn.ReLU"}
+--config.model[8] = {module = "nn.SpatialMaxPooling", kW = 3, kH = 1, dW=3, dH=1}
 
 
-config.model[9] = {module = "nn.Reshape", dimension1 = 2560, dimension2 = nil, dimension3 = nil }
-config.model[10] = {module = "nn.Linear", inputSize = 2560, outputSize = 1024}
-config.model[11] = {module = "nn.ReLU"}
-config.model[12] = {module = "nn.Dropout", p = 0.5}
-config.model[13] = {module = "nn.Linear", inputSize = 1024, outputSize = 5}
-config.model[14] = {module = "nn.LogSoftMax"}
+config.model[7] = {module = "nn.Reshape", dimension1 = 128, dimension2 = 64, dimension3 = nil }
+config.model[8] = {module = "nn.Linear", inputSize = 64*config.seq_length, outputSize = 1024}
+config.model[9] = {module = "nn.ReLU"}
+config.model[10] = {module = "nn.Dropout", p = 0.5}
+config.model[11] = {module = "nn.Linear", inputSize = 1024, outputSize = 5}
+config.model[12] = {module = "nn.LogSoftMax"}
 
 --[[
 config.model[4] = {module = "nn.SpatialConvolution", nInputPlane = 128, nOutputPlane= 128, kW = 20, kH=1, dW = 5, dH = 1}
