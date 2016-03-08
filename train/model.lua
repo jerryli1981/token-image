@@ -111,7 +111,7 @@ function Model:createParallel(model)
    end
 
    for i, m in ipairs(model) do
-      if i < 5 then
+      if i < 4 then
          for j=1, config.seq_length do
             seq = sequential_list[j]
             seq:add(Model:createModule(m))
@@ -126,7 +126,7 @@ function Model:createParallel(model)
    end
 
    cnn_out = cnn(inputs)
-   merged = nn.JoinTable(2){cnn_out}
+   merged = nn.JoinTable(4){cnn_out}
    
    local vecs_to_input = nn.gModule({input}, {merged})
 
@@ -135,7 +135,7 @@ function Model:createParallel(model)
       :add(vecs_to_input)
 
    for i, m in ipairs(model) do
-      if i >= 5 then
+      if i >= 4 then
          sim_module:add(Model:createModule(m))
       end
    end
@@ -181,7 +181,7 @@ function Model:makeCleanParallel(model)
    end
 
    cnn_out = cnn(inputs)
-   merged = nn.JoinTable(2){cnn_out}
+   merged = nn.JoinTable(4){cnn_out}
 
    
    local vecs_to_input = nn.gModule({input}, {merged})
