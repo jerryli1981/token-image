@@ -219,9 +219,9 @@ function Train:batchStep_wb_2d()
    -- Get a batch of data
    self.batch_untyped,self.labels_untyped = self.data:getBatch_wb_2d(self.batch_untyped,self.labels_untyped)
 
-   self.batch = self.batch or self.batch_untyped:transpose(2, 3):contiguous():type(self.model:type())
+   self.batch = self.batch or self.batch_untyped:contiguous():type(self.model:type())
    self.labels = self.labels or self.labels_untyped:type(self.model:type())
-   self.batch:copy(self.batch_untyped:transpose(2, 3):contiguous())
+   self.batch:copy(self.batch_untyped:contiguous())
    self.labels:copy(self.labels_untyped)
 
    if self.model:type() == "torch.CudaTensor" then cutorch.synchronize() end
@@ -229,7 +229,6 @@ function Train:batchStep_wb_2d()
 
    self.clock = sys.clock()
    -- Forward propagation
-
    self.output = self.model:forward(self.batch)
 
    self.objective = self.loss:forward(self.output,self.labels)

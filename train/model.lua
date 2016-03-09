@@ -14,11 +14,11 @@ function Model:__init(config)
 
    -- Create a sequential for self
    if config.file then
-      --self.sequential = Model:makeCleanSequential(torch.load(config.file))
-      self.sequential = Model:makeCleanParallel(torch.load(config.file))
+      self.sequential = Model:makeCleanSequential(torch.load(config.file))
+      --self.sequential = Model:makeCleanParallel(torch.load(config.file))
    else
-      --self.sequential = Model:createSequential(config)
-      self.sequential = Model:createParallel(config)
+      self.sequential = Model:createSequential(config)
+      --self.sequential = Model:createParallel(config)
    end
    self.p = config.p or 0.5
    self.tensortype = torch.getdefaulttensortype()
@@ -61,8 +61,8 @@ end
 -- Switch to a different data mode
 function Model:type(tensortype)
    if tensortype ~= nil then
-      --self.sequential = self:makeCleanSequential(self.sequential)
-      self.sequential = self:makeCleanParallel(self.sequential)
+      self.sequential = self:makeCleanSequential(self.sequential)
+      --self.sequential = self:makeCleanParallel(self.sequential)
       self.sequential:type(tensortype)
       self.tensortype = tensortype
    end

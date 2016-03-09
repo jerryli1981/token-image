@@ -32,33 +32,24 @@ config.val_data.batch_size = 128
 -- square
 -- The model
 config.model = {}
--- 1 x 5 x 500 (nInputPlane x height x width)
-config.model[1] = {module = "nn.SpatialConvolution", nInputPlane = 1, nOutputPlane= 100, kW = 20, kH=5, dW = 5, dH = 1}
+-- 1 x 10 x (10 x seq_length)
+config.model[1] = {module = "nn.SpatialConvolution", nInputPlane = 1, nOutputPlane= 256, kW = 20, kH=10, dW = 10, dH = 1}
 config.model[2] = {module = "nn.ReLU"}
---100x1x99
 config.model[3] = {module = "nn.SpatialMaxPooling", kW = 2, kH = 1, dW=2, dH=1}
--- 100 x 1 x 49
 
-config.model[4] = {module = "nn.SpatialConvolution", nInputPlane = 100, nOutputPlane= 100, kW = 2, kH=1, dW = 1, dH = 1}
+
+config.model[4] = {module = "nn.SpatialConvolution", nInputPlane = 256, nOutputPlane= 256, kW = 20, kH=1, dW = 5, dH = 1}
 config.model[5] = {module = "nn.ReLU"}
 config.model[6] = {module = "nn.SpatialMaxPooling", kW = 2, kH = 1, dW=2, dH=1}
--- 100 x 1 x 24
 
-config.model[7] = {module = "nn.SpatialConvolution", nInputPlane = 100, nOutputPlane= 100, kW = 2, kH=1, dW = 1, dH = 1}
-config.model[8] = {module = "nn.ReLU"}
-config.model[9] = {module = "nn.SpatialMaxPooling", kW = 2, kH = 1, dW=2, dH=1}
--- 100 x 1 x 11
 
-config.model[10] = {module = "nn.Reshape", dimension1 = 1100, dimension2 = nil, dimension3 = nil }
-config.model[11] = {module = "nn.Linear", inputSize = 1100, outputSize = 512}
-config.model[12] = {module = "nn.Threshold"}
-config.model[13] = {module = "nn.Dropout", p = 0.5}
+config.model[7] = {module = "nn.Reshape", dimension1 = 2048, dimension2 = nil, dimension3 = nil }
+config.model[8] = {module = "nn.Linear", inputSize = 2048, outputSize = 1024}
+config.model[9] = {module = "nn.Threshold"}
+config.model[10] = {module = "nn.Dropout", p = 0.5}
 
-config.model[14] = {module = "nn.Linear", inputSize = 512, outputSize = 512}
-config.model[15] = {module = "nn.Threshold"}
-config.model[16] = {module = "nn.Dropout", p = 0.5}
-config.model[17] = {module = "nn.Linear", inputSize = 512, outputSize = 5}
-config.model[18] = {module = "nn.LogSoftMax"}
+config.model[11] = {module = "nn.Linear", inputSize = 1024, outputSize = 5}
+config.model[12] = {module = "nn.LogSoftMax"}
 
 
 
