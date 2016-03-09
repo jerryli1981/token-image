@@ -1,8 +1,3 @@
---[[
-Main Driver for Crepe
-By Xiang Zhang @ New York University
-]]
-
 -- Necessary functionalities
 require("nn")
 require('optim')
@@ -12,6 +7,7 @@ require('optim')
 require("model")
 require("train")
 require("test")
+require("data")
 
 
 require('lfs')
@@ -61,24 +57,22 @@ function main.argparse()
 
    if opt.format == "stk" and opt.model == "cnn" then
       print("Run stroke format and cnn model...")
-      require("config_stroke_cnn")
-      require("data")
+      require("config_stroke_cnn")   
    elseif opt.format == "stk" and opt.model == "lstm" then
       print("Run stroke format and lstm model...")
       require("config_stroke_lstm")
-      require("data")
    elseif opt.format == "py" and opt.model == "lstm" then
       print("Run pinyin format and lstm model...")
       require("config_pinyin_lstm")
-      require("data")
    elseif opt.format == "py" and opt.model == "cnn" then
       print("Run pinyin format and cnn model...")
       require("config_pinyin_cnn")
-      require("data")
-   elseif opt.format == "wb" and opt.model == "cnn" then
+   elseif opt.format == "wb2d" and opt.model == "cnn" then
+      print("Run wubi format and cnn model...")
+      require("config_wb_cnn_2d")
+   elseif opt.format == "wb3d" and opt.model == "cnn" then
       print("Run wubi format and cnn model...")
       require("config_wb_cnn_3d")
-      require("data_wb_3d")
    else 
       error("Wrong format")
    end
@@ -170,8 +164,10 @@ function main.run()
 	     main.model:disableDropouts()
       end
       print("Training for era "..i)
-      if opt.format == "wb" then
+      if opt.format == "wb3d" then
          main.train:run_wb_3d(config.main.epoches, main.trainlog)
+      elseif opt.format == "wb2d" then
+         main.train:run_wb_2d(config.main.epoches, main.trainlog)
       else
          main.train:run(config.main.epoches, main.trainlog)
       end
@@ -180,8 +176,10 @@ function main.run()
 	     print("Disabling dropouts")
         main.model:disableDropouts()
 	     print("Testing on develop data for era "..i)
-         if opt.format == "wb" then
-            main.test_val:run_wb(main.testlog)
+         if opt.format == "wb2d" then
+            main.test_val:run_wb_2d(main.testlog)
+         elseif opt.format == "wb3d" then
+            main.test_val:run_wb_3d(main.testlog)
          else
             main.test_val:run(main.testlog)
          end

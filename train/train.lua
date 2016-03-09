@@ -156,53 +156,11 @@ function Train:batchStep()
 end
 
 -- Run for one batch step
-function Train:batchStep_new()
-
-   -- Get a batch of data
-   self.batch_untyped,self.labels_untyped = self.data:getBatch(self.batch_untyped,self.labels_untyped)
-
-   -- Make the data to correct type
-   self.batch = self.batch or self.batch_untyped:transpose(2, 3):contiguous():type(self.model:type())
-   self.labels = self.labels or self.labels_untyped:type(self.model:type())
-   self.batch:copy(self.batch_untyped:transpose(2, 3):contiguous())
-   self.labels:copy(self.labels_untyped)
-
-
-   local feval = function(x)
-      -- Forward propagation
-      self.output = self.model:forward(self.batch)
-      self.objective = self.loss:forward(self.output,self.labels)
-
-      self.max, self.decision = self.output:double():max(2)
-      self.max = self.max:squeeze():double()
-      self.mask = self.labels:double():gt(0):double()
-      self.decision = self.decision:squeeze():double()
-      self.error = torch.ne(self.decision,self.labels:double()):double():cmul(self.mask):sum()/self.mask:sum()
-
-      -- Backward propagation   
-      self.grads:zero()
-      self.gradOutput = self.loss:backward(self.output,self.labels)
-      self.gradBatch = self.model:backward(self.batch,self.gradOutput)
-
-      return self.objective, self.grads
-
-   end
-
-   self.optim_state["learningRate"]=self.rate
-   self.optimization_function(feval, self.params, self.optim_state)
-
-   -- Increment on the epoch
-   self.epoch = self.epoch + 1
-   -- Change the learning rate
-   self.rate = self.rates[self.epoch] or self.rate
-end
-
--- Run for one batch step
 function Train:batchStep_wb_3d()
 
    self.clock = sys.clock()
    -- Get a batch of data
-   self.batch_untyped,self.labels_untyped = self.data:getBatch(self.batch_untyped,self.labels_untyped)
+   self.batch_untyped,self.labels_untyped = self.data:getBatch_wb_3d(self.batch_untyped,self.labels_untyped)
 
    -- Make the data to correct type
    self.batch = self.batch or self.batch_untyped:contiguous():type(self.model:type())
@@ -259,7 +217,7 @@ function Train:batchStep_wb_2d()
 
    self.clock = sys.clock()
    -- Get a batch of data
-   self.batch_untyped,self.labels_untyped = self.data:getBatch(self.batch_untyped,self.labels_untyped)
+   self.batch_untyped,self.labels_untyped = self.data:getBatch_wb_2d(self.batch_untyped,self.labels_untyped)
 
    self.batch = self.batch or self.batch_untyped:transpose(2, 3):contiguous():type(self.model:type())
    self.labels = self.labels or self.labels_untyped:type(self.model:type())
@@ -348,6 +306,48 @@ function Train:batchStep_wb_new()
 
    self.optim_state["learningRate"]=self.rate
 
+   self.optimization_function(feval, self.params, self.optim_state)
+
+   -- Increment on the epoch
+   self.epoch = self.epoch + 1
+   -- Change the learning rate
+   self.rate = self.rates[self.epoch] or self.rate
+end
+
+-- Run for one batch step
+function Train:batchStep_new()
+
+   -- Get a batch of data
+   self.batch_untyped,self.labels_untyped = self.data:getBatch(self.batch_untyped,self.labels_untyped)
+
+   -- Make the data to correct type
+   self.batch = self.batch or self.batch_untyped:transpose(2, 3):contiguous():type(self.model:type())
+   self.labels = self.labels or self.labels_untyped:type(self.model:type())
+   self.batch:copy(self.batch_untyped:transpose(2, 3):contiguous())
+   self.labels:copy(self.labels_untyped)
+
+
+   local feval = function(x)
+      -- Forward propagation
+      self.output = self.model:forward(self.batch)
+      self.objective = self.loss:forward(self.output,self.labels)
+
+      self.max, self.decision = self.output:double():max(2)
+      self.max = self.max:squeeze():double()
+      self.mask = self.labels:double():gt(0):double()
+      self.decision = self.decision:squeeze():double()
+      self.error = torch.ne(self.decision,self.labels:double()):double():cmul(self.mask):sum()/self.mask:sum()
+
+      -- Backward propagation   
+      self.grads:zero()
+      self.gradOutput = self.loss:backward(self.output,self.labels)
+      self.gradBatch = self.model:backward(self.batch,self.gradOutput)
+
+      return self.objective, self.grads
+
+   end
+
+   self.optim_state["learningRate"]=self.rate
    self.optimization_function(feval, self.params, self.optim_state)
 
    -- Increment on the epoch

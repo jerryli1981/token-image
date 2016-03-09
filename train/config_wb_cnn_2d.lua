@@ -10,7 +10,7 @@ config = {}
 
 local alphabet = "qwertyuiopasdfghjklmxcvbn"
 
-seq_length = 500
+config.seq_length = 200
 
 config.dictsize = #alphabet
 
@@ -18,14 +18,14 @@ config.dictsize = #alphabet
 config.train_data = {}
 config.train_data.file = paths.concat(paths.cwd(), "../data/train_wb.t7b")
 config.train_data.alphabet = alphabet
-config.train_data.length = seq_length
+config.train_data.length = config.seq_length
 config.train_data.batch_size = 128
 
 -- Validation data
 config.val_data = {}
 config.val_data.file =  paths.concat(paths.cwd(), "../data/test_wb.t7b")
 config.val_data.alphabet = alphabet
-config.val_data.length = seq_length
+config.val_data.length = config.seq_length
 config.val_data.batch_size = 128
 
 
