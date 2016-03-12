@@ -359,15 +359,20 @@ function Data:sequenceTo2DTensor_new_2(str, l, input)
       count = count + 1
    end
 
-   if #tmp < self.length then
-      for i=#tmp+1, self.length do
-         tmp[i] = torch.Tensor(4,25):zero()
+   tmp2 = {}
+   for i=#tmp, 1, -1 do
+      table.insert(tmp2, tmp[i])
+   end
+
+   if #tmp2 < self.length then
+      for i=#tmp2+1, self.length do
+         tmp2[i] = torch.Tensor(4,25):zero()
       end
    end
 
-   local tmp2 = nn.JoinTable(1):forward(tmp)
+   local tmp3 = nn.JoinTable(1):forward(tmp2)
    for i=1, 4*l do
-      input[i] = tmp2[i]
+      input[i] = tmp3[i]
    end
 end
 

@@ -10,7 +10,7 @@ config = {}
 
 local alphabet = "qwertyuiopasdfghjklmxcvbn"
 
-config.seq_length = 200
+config.seq_length = 400
 
 config.dictsize = #alphabet
 
@@ -33,13 +33,13 @@ config.val_data.batch_size = 128
 -- The model
 config.model = {}
 
-config.model[1] = {module = "nn.TemporalConvolution", inputFrameSize = #alphabet, outputFrameSize = 256, kW = 12, dW=4}
+config.model[1] = {module = "nn.TemporalConvolution", inputFrameSize = #alphabet, outputFrameSize = 256, kW = 4, dW=4}
 config.model[2] = {module = "nn.Threshold"}
-config.model[3] = {module = "nn.TemporalMaxPooling", kW = 2, dW = 2}
+config.model[3] = {module = "nn.TemporalMaxPooling", kW = 3, dW = 3}
 -- 336 x 256
 config.model[4] = {module = "nn.TemporalConvolution", inputFrameSize = 256, outputFrameSize = 256, kW = 4}
 config.model[5] = {module = "nn.Threshold"}
-config.model[6] = {module = "nn.TemporalMaxPooling", kW = 2, dW = 2}
+config.model[6] = {module = "nn.TemporalMaxPooling", kW = 3, dW = 3}
 -- 110 x 256
 config.model[7] = {module = "nn.TemporalConvolution", inputFrameSize = 256, outputFrameSize = 256, kW = 4}
 config.model[8] = {module = "nn.Threshold"}
@@ -52,11 +52,11 @@ config.model[12] = {module = "nn.Threshold"}
 -- 104 x 256
 config.model[13] = {module = "nn.TemporalConvolution", inputFrameSize = 256, outputFrameSize = 256, kW = 4}
 config.model[14] = {module = "nn.Threshold"}
-config.model[15] = {module = "nn.TemporalMaxPooling", kW = 2, dW = 2}
+config.model[15] = {module = "nn.TemporalMaxPooling", kW = 3, dW = 3}
 -- 34 x 256
-config.model[16] = {module = "nn.Reshape", dimension1 = 4608, dimension2 = nil, dimension3 = nil }
+config.model[16] = {module = "nn.Reshape", dimension1 = 2560, dimension2 = nil, dimension3 = nil }
 -- 8704
-config.model[17] = {module = "nn.Linear", inputSize = 4608, outputSize = 1024}
+config.model[17] = {module = "nn.Linear", inputSize = 2560, outputSize = 1024}
 config.model[18] = {module = "nn.Threshold"}
 config.model[19] = {module = "nn.Dropout", p = 0.5}
 -- 1024
