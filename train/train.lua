@@ -85,7 +85,7 @@ function Train:run_wb_3d(epoches,logfunc)
    end
 end
 
-function Train:run_wb_2d(epoches,logfunc)
+function Train:run_wb_2d_cnn(epoches,logfunc)
    -- Recapture the weights
    if self.recapture then
       self.params,self.grads = nil,nil
@@ -95,7 +95,22 @@ function Train:run_wb_2d(epoches,logfunc)
    end
    -- The loop
    for i = 1,epoches do
-      self:batchStep_wb_2d()
+      self:batchStep_wb_2d_cnn()
+      if logfunc then logfunc(self,i) end
+   end
+end
+
+function Train:run_wb_2d_lstm(epoches,logfunc)
+   -- Recapture the weights
+   if self.recapture then
+      self.params,self.grads = nil,nil
+      collectgarbage()
+      self.params,self.grads = self.model:getParameters()
+      collectgarbage()
+   end
+   -- The loop
+   for i = 1,epoches do
+      self:batchStep_wb_2d_lstm()
       if logfunc then logfunc(self,i) end
    end
 end
@@ -213,11 +228,68 @@ function Train:batchStep_wb_3d()
 
 end
 
-function Train:batchStep_wb_2d()
+function Train:batchStep_wb_2d_cnn()
 
    self.clock = sys.clock()
    -- Get a batch of data
-   self.batch_untyped,self.labels_untyped = self.data:getBatch_wb_2d(self.batch_untyped,self.labels_untyped)
+   self.batch_untyped,self.labels_untyped = self.data:getBatch_wb_2d_cnn(self.batch_untyped,self.labels_untyped)
+
+   self.batch = self.batch or self.batch_untyped:contiguous():type(self.model:type())
+   self.labels = self.labels or self.labels_untyped:type(self.model:type())
+   self.batch:copy(self.batch_untyped:contiguous())
+   self.labels:copy(self.labels_untyped)
+
+   if self.model:type() == "torch.CudaTensor" then cutorch.synchronize() end
+   self.time.data = sys.clock() - self.clock
+
+   self.clock = sys.clock()
+   -- Forward propagation
+   self.output = self.model:forward(self.batch)
+
+   self.objective = self.loss:forward(self.output,self.labels)
+   if type(self.objective) ~= "number" then self.objective = self.objective[1] end
+   self.max, self.decision = self.output:double():max(2)
+   self.max = self.max:squeeze():double()
+   self.mask = self.labels:double():gt(0):double()
+   self.decision = self.decision:squeeze():double()
+   if self.mask:sum() > 0 then
+      self.error = torch.ne(self.decision,self.labels:double()):double():cmul(self.mask):sum()/self.mask:sum()
+   else
+      self.error = 1
+   end
+   -- Record time
+   if self.model:type() == "torch.CudaTensor" then cutorch.synchronize() end
+   self.time.forward = sys.clock() - self.clock
+
+   self.clock = sys.clock()
+   -- Backward propagation   
+   self.grads:zero()
+   self.gradOutput = self.loss:backward(self.output,self.labels)
+   self.gradBatch = self.model:backward(self.batch,self.gradOutput)
+
+   -- Record time
+   if self.model:type() == "torch.CudaTensor" then cutorch.synchronize() end
+   self.time.backward = sys.clock() - self.clock
+
+   self.clock = sys.clock()
+   -- Update the step
+   self.old_grads:mul(self.momentum):add(self.grads:mul(-self.rate))
+   self.params:mul(1-self.rate*self.decay):add(self.old_grads)
+   if self.model:type() == "torch.CudaTensor" then cutorch.synchronize() end
+   self.time.update = sys.clock() - self.clock
+
+   -- Increment on the epoch
+   self.epoch = self.epoch + 1
+   -- Change the learning rate
+   self.rate = self.rates[self.epoch] or self.rate
+
+end
+
+function Train:batchStep_wb_2d_lstm()
+
+   self.clock = sys.clock()
+   -- Get a batch of data
+   self.batch_untyped,self.labels_untyped = self.data:getBatch_wb_2d_lstm(self.batch_untyped,self.labels_untyped)
 
    self.batch = self.batch or self.batch_untyped:contiguous():type(self.model:type())
    self.labels = self.labels or self.labels_untyped:type(self.model:type())

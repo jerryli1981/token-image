@@ -70,6 +70,9 @@ function main.argparse()
    elseif opt.format == "wb2d" and opt.model == "cnn" then
       print("Run wubi format and cnn model...")
       require("config_wb_cnn_2d")
+   elseif opt.format == "wb2d" and opt.model == "lstm" then
+      print("Run wubi format and lstm model...")
+      require("config_wb_lstm_2d")
    elseif opt.format == "wb3d" and opt.model == "cnn" then
       print("Run wubi format and cnn model...")
       require("config_wb_cnn_3d")
@@ -166,8 +169,10 @@ function main.run()
       print("Training for era "..i)
       if opt.format == "wb3d" then
          main.train:run_wb_3d(config.main.epoches, main.trainlog)
-      elseif opt.format == "wb2d" then
-         main.train:run_wb_2d(config.main.epoches, main.trainlog)
+      elseif opt.format == "wb2d" and opt.model == "cnn" then
+         main.train:run_wb_2d_cnn(config.main.epoches, main.trainlog)
+      elseif opt.format == "wb2d" and opt.model == "lstm" then
+         main.train:run_wb_2d_lstm(config.main.epoches, main.trainlog)
       else
          main.train:run(config.main.epoches, main.trainlog)
       end
@@ -176,8 +181,10 @@ function main.run()
 	     print("Disabling dropouts")
         main.model:disableDropouts()
 	     print("Testing on develop data for era "..i)
-         if opt.format == "wb2d" then
-            main.test_val:run_wb_2d(main.testlog)
+         if opt.format == "wb2d" and opt.model == "cnn" then
+            main.test_val:run_wb_2d_cnn(main.testlog)
+         elseif opt.format == "wb2d" and opt.model == "lstm" then
+            main.test_val:run_wb_2d_lstm(main.testlog)
          elseif opt.format == "wb3d" then
             main.test_val:run_wb_3d(main.testlog)
          else

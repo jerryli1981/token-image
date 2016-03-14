@@ -159,7 +159,7 @@ function Data:iterator_wb_3d(static, data)
    end
 end
 
-function Data:getBatch_wb_2d(inputs, labels, data)
+function Data:getBatch_wb_2d_cnn(inputs, labels, data)
    local data = data or self.data
    --local inputs = inputs or torch.Tensor(self.batch_size, 1, 5*math.sqrt(self.length), 5*math.sqrt(self.length))
    --local inputs = inputs or torch.Tensor(self.batch_size, 1, 10, 10*self.length)
@@ -179,12 +179,12 @@ function Data:getBatch_wb_2d(inputs, labels, data)
       end
 
       labels[i] = label
-      self:sequenceTo2DTensor_new_2(s, self.length, inputs:select(1, i))
+      self:sequenceTo2DTensor_new_2_cnn(s, self.length, inputs:select(1, i))
    end
    return inputs, labels
 end
 
-function Data:iterator_wb_2d(static, data)
+function Data:iterator_wb_2d_cnn(static, data)
    local i = 1
    local j = 0
    local data = data or self.data
@@ -226,7 +226,81 @@ function Data:iterator_wb_2d(static, data)
             s = s.." "..ffi.string(torch.data(data.content:narrow(1, data.index[i][j][l], 1)))
          end
 
-         self:sequenceTo2DTensor_new_2(s, self.length, inputs:select(1, k))
+         self:sequenceTo2DTensor_new_2_cnn(s, self.length, inputs:select(1, k))
+         labels[k] = i
+      end
+      return inputs, labels, n
+   end
+end
+
+function Data:getBatch_wb_2d_lstm(inputs, labels, data)
+   local data = data or self.data
+   --local inputs = inputs or torch.Tensor(self.batch_size, 1, 5*math.sqrt(self.length), 5*math.sqrt(self.length))
+   --local inputs = inputs or torch.Tensor(self.batch_size, 1, 10, 10*self.length)
+   local inputs = inputs or torch.Tensor(self.batch_size, 4*self.length, 25)
+
+   local labels = labels or torch.Tensor(inputs:size(1))
+
+   for i = 1, inputs:size(1) do
+      local label, s
+      -- Choose data
+      label = torch.random(#data.index)
+      local input = torch.random(data.index[label]:size(1))
+
+      s = ffi.string(torch.data(data.content:narrow(1, data.index[label][input][data.index[label][input]:size(1)], 1)))
+      for l = data.index[label][input]:size(1) - 1, 1, -1 do
+         s = s.." "..ffi.string(torch.data(data.content:narrow(1, data.index[label][input][l], 1)))
+      end
+
+      labels[i] = label
+      self:sequenceTo2DTensor_new_2_lstm(s, self.length, inputs:select(1, i))
+   end
+   return inputs, labels
+end
+
+function Data:iterator_wb_2d_lstm(static, data)
+   local i = 1
+   local j = 0
+   local data = data or self.data
+   local static
+   if static == nil then static = true end
+
+   if static then
+      --inputs = torch.Tensor(self.batch_size, 1, 5*math.sqrt(self.length), 5*math.sqrt(self.length))
+      --inputs = inputs or torch.Tensor(self.batch_size, 1, 5, 5*self.length)
+      --inputs = inputs or torch.Tensor(self.batch_size, 1, 10, 10*self.length)
+      local inputs = inputs or torch.Tensor(self.batch_size, 4*self.length, 25)
+      labels = torch.Tensor(inputs:size(1))
+   end
+
+   return function()
+      if data.index[i] == nil then return end
+
+      --local inputs = inputs or torch.Tensor(self.batch_size, 1, 5*math.sqrt(self.length), 5*math.sqrt(self.length))
+      --local inputs = inputs or torch.Tensor(self.batch_size, 1, 5, 5*self.length)
+      --local inputs = inputs or torch.Tensor(self.batch_size, 1, 10, 10*self.length)
+      local inputs = inputs or torch.Tensor(self.batch_size, 4*self.length, 25)
+      local labels = labels or torch.Tensor(inputs:size(1))
+
+      local n = 0
+      for k = 1, inputs:size(1) do
+         j = j + 1
+         if j > data.index[i]:size(1) then
+            i = i + 1
+            if data.index[i] == nil then
+               break
+            end
+            j = 1
+         end
+
+         n = n + 1
+
+         local s = ffi.string(torch.data(data.content:narrow(1, data.index[i][j][data.index[i][j]:size(1)], 1)))
+         for l = data.index[i][j]:size(1) - 1, 1, -1 do
+            s = s.." "..ffi.string(torch.data(data.content:narrow(1, data.index[i][j][l], 1)))
+         end
+
+         self:sequenceTo2DTensor_new_2_lstm(s, self.length, inputs:select(1, k))
          labels[k] = i
       end
       return inputs, labels, n
@@ -335,7 +409,7 @@ function Data:sequenceTo2DTensor_new(str, l, input)
    end
 end
 
-function Data:sequenceTo2DTensor_new_2(str, l, input)
+function Data:sequenceTo2DTensor_new_2_cnn(str, l, input)
 
    local str = str:lower()
    local count = 1
@@ -371,6 +445,42 @@ function Data:sequenceTo2DTensor_new_2(str, l, input)
    end
 
    local tmp3 = nn.JoinTable(1):forward(tmp2)
+   for i=1, 4*l do
+      input[i] = tmp3[i]
+   end
+end
+
+function Data:sequenceTo2DTensor_new_2_lstm(str, l, input)
+
+   local str = str:lower()
+   local count = 1
+
+   local tmp = {}
+   for token in string.gmatch(str, "[^%s]+") do
+
+      if count > l then
+         break
+      end
+
+      local word_tensor = torch.Tensor(4,25)
+      word_tensor:zero()
+
+      for i=1, 4 do
+         if self.dict[token:sub(i,i)] then 
+            word_tensor[i][self.dict[token:sub(i,i)]] = 1
+         end
+      end
+      tmp[count] = word_tensor
+      count = count + 1
+   end
+
+   if #tmp < self.length then
+      for i=#tmp+1, self.length do
+         tmp[i] = torch.Tensor(4,25):zero()
+      end
+   end
+
+   local tmp3 = nn.JoinTable(1):forward(tmp)
    for i=1, 4*l do
       input[i] = tmp3[i]
    end
