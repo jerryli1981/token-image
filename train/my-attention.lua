@@ -24,7 +24,7 @@ cmd:option('--momentum', 0.9, 'momentum')
 cmd:option('--maxOutNorm', -1, 'max norm each layers output neuron weights')
 cmd:option('--cutoffNorm', -1, 'max l2-norm of contatenation of all gradParam tensors')
 cmd:option('--batchSize', 20, 'number of examples per batch')
-cmd:option('--cuda', false, 'use CUDA')
+cmd:option('--cuda', 0, 'use CUDA')
 cmd:option('--useDevice', 1, 'sets the device (GPU) to use')
 cmd:option('--maxEpoch', 20, 'maximum number of epochs to run')
 cmd:option('--maxTries', 100, 'maximum number of epochs to try to find a better local minima for early-stopping')
@@ -80,13 +80,13 @@ ds = getDataset()
 
 --[[Saved experiment]]--
 if opt.xpPath ~= '' then
-   if opt.cuda then
+   if opt.cuda > 0 then
       require 'optim'
       require 'cunn'
       cutorch.setDevice(opt.useDevice)
    end
    xp = torch.load(opt.xpPath)
-   if opt.cuda then
+   if opt.cuda >0 then
       xp:cuda()
    else
       xp:float()
@@ -225,7 +225,7 @@ xp = dp.Experiment{
    tester = tester,
    observer = {
       ad,
-      dp.FileLogger('/Users/peng/Develops/python-stroke/train/logs'),
+      dp.FileLogger(),
       dp.EarlyStopper{
          max_epochs = opt.maxTries,
          error_report={'validator','feedback','confusion','accuracy'},
@@ -237,7 +237,7 @@ xp = dp.Experiment{
 }
 
 --[[GPU or CPU]]--
-if opt.cuda then
+if opt.cuda >0 then
    require 'cutorch'
    require 'cunn'
    cutorch.setDevice(opt.useDevice)
