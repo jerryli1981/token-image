@@ -159,6 +159,76 @@ function Data:iterator_wb_3d(static, data)
    end
 end
 
+function Data:getBatch_wb_3d_att(inputs, labels, data)
+   local data = data or self.data
+   local inputs = inputs or torch.Tensor(self.batch_size, 4, 5*math.sqrt(self.length), 5*math.sqrt(self.length))
+
+   local labels = labels or torch.Tensor(inputs:size(1))
+
+   for i = 1, inputs:size(1) do
+      local label, s
+      -- Choose data
+      label = torch.random(#data.index)
+      local input = torch.random(data.index[label]:size(1))
+
+      s = ffi.string(torch.data(data.content:narrow(1, data.index[label][input][data.index[label][input]:size(1)], 1)))
+      for l = data.index[label][input]:size(1) - 1, 1, -1 do
+         s = s.." "..ffi.string(torch.data(data.content:narrow(1, data.index[label][input][l], 1)))
+      end
+
+      labels[i] = label
+      self:sequenceTo3DTensor_att(s, self.length, inputs:select(1, i))
+   end
+   return inputs, labels
+end
+
+function Data:iterator_wb_3d_att(static, data)
+   local i = 1
+   local j = 0
+   local data = data or self.data
+   local static
+   if static == nil then static = true end
+
+   if static then
+      inputs = torch.Tensor(self.batch_size, 4, 5*math.sqrt(self.length), 5*math.sqrt(self.length))
+      labels = torch.Tensor(inputs:size(1))
+   end
+
+   return function()
+      if data.index[i] == nil then return end
+
+      local inputs = inputs or torch.Tensor(self.batch_size, 4, 5, 5*self.length)
+      local labels = labels or torch.Tensor(inputs:size(1))
+
+      local n = 0
+      for k = 1, inputs:size(1) do
+         j = j + 1
+         if j > data.index[i]:size(1) then
+            i = i + 1
+            if data.index[i] == nil then
+               break
+            end
+            j = 1
+         end
+
+         n = n + 1
+
+         local s = ffi.string(torch.data(data.content:narrow(1, data.index[i][j][data.index[i][j]:size(1)], 1)))
+         for l = data.index[i][j]:size(1) - 1, 1, -1 do
+            s = s.." "..ffi.string(torch.data(data.content:narrow(1, data.index[i][j][l], 1)))
+         end
+
+         self:sequenceTo3DTensor_att(s, self.length, inputs:select(1, k))
+         labels[k] = i
+      end
+      return inputs, labels, n
+   end
+end
+
+
+
+
+
 function Data:getBatch_wb_2d_cnn(inputs, labels, data)
    local data = data or self.data
    --local inputs = inputs or torch.Tensor(self.batch_size, 1, 5*math.sqrt(self.length), 5*math.sqrt(self.length))
@@ -342,6 +412,49 @@ function Data:sequenceTo3DTensor(str, l, input)
    local tmp2 = nn.JoinTable(3):forward(tmp)
    for i=1, 4 do
       input[i] = tmp2[i] 
+   end
+end
+
+function Data:sequenceTo3DTensor_att(str, l, input)
+
+   local str = str:lower()
+   local count = 1
+
+   local tmp = {}
+   for token in string.gmatch(str, "[^%s]+") do
+
+      if count > l then
+         break
+      end
+
+      local word_tensor = torch.Tensor(4,25)
+      word_tensor:zero()
+
+      for i=1, 4 do
+         if self.dict[token:sub(i,i)] then 
+            word_tensor[i][self.dict[token:sub(i,i)]] = 1
+         end
+      end
+      word_tensor = torch.reshape(word_tensor, 4, 5, 5)
+
+      tmp[count] = word_tensor
+      count = count + 1
+   end
+
+   if #tmp < self.length then
+      for i=#tmp+1, self.length do
+         tmp[i] = torch.Tensor(4,5,5):zero()
+      end
+   end
+
+   local idx = 1
+   for i=1, 5*math.sqrt(self.length), 5 do
+      for j=1, 5*math.sqrt(self.length), 5 do
+         for k=1, 4 do
+            input[k][{{i,i+4},{j,j+4}}] = tmp[idx][k]
+         end
+         idx = idx + 1
+      end
    end
 end
 

@@ -7,6 +7,9 @@ By Xiang Zhang @ New York University
 require("nn")
 require("nngraph")
 
+require 'dp'
+require 'rnn'
+
 -- The class
 local Model = torch.class("Model")
 
@@ -22,7 +25,83 @@ function Model:__init(config)
    end
    self.p = config.p or 0.5
    self.tensortype = torch.getdefaulttensortype()
+
+   if config.attention ==1 then
+      print("Initial attention agent")
+      self.sequential = Model:getAttentionAgent()
+   end
    
+end
+
+function Model:getAttentionAgent()
+
+   locatorHiddenSize = 128
+   glimpsePatchSize=8
+   glimpseDepth = 1
+   glimpseScale = 2
+   glimpseHiddenSize=128
+   imageHiddenSize= 256
+   hiddenSize=256
+   locatorStd=0.11
+   unitPixels=13
+   rho=7
+
+   locationSensor = nn.Sequential()
+   locationSensor:add(nn.SelectTable(2))
+   locationSensor:add(nn.Linear(2, locatorHiddenSize))
+   locationSensor:add(nn.ReLU())
+
+   glimpseSensor = nn.Sequential()
+   glimpseSensor:add(nn.DontCast(nn.SpatialGlimpse(glimpsePatchSize, glimpseDepth, glimpseScale):float(),true))
+   glimpseSensor:add(nn.Collapse(3))
+   glimpseSensor:add(nn.Linear(4*(glimpsePatchSize^2)*glimpseDepth, glimpseHiddenSize))
+   glimpseSensor:add(nn.ReLU())
+
+   glimpse = nn.Sequential()
+   glimpse:add(nn.ConcatTable():add(locationSensor):add(glimpseSensor))
+   glimpse:add(nn.JoinTable(1,1))
+   glimpse:add(nn.Linear(glimpseHiddenSize+locatorHiddenSize, imageHiddenSize))
+   glimpse:add(nn.ReLU())
+   glimpse:add(nn.Linear(imageHiddenSize, hiddenSize))
+
+   recurrent = nn.FastLSTM(hiddenSize, hiddenSize)
+
+   -- recurrent neural network
+   rnn = nn.Recurrent(hiddenSize, glimpse, recurrent, nn.ReLU(), 99999)
+
+
+   -- actions (locator)
+   locator = nn.Sequential()
+   locator:add(nn.Linear(hiddenSize, 2))
+   locator:add(nn.HardTanh()) -- bounds mean between -1 and 1
+   locator:add(nn.ReinforceNormal(2*locatorStd)) -- sample from normal, uses REINFORCE learning rule
+   locator:add(nn.HardTanh()) -- bounds sample between -1 and 1
+   locator:add(nn.MulConstant(unitPixels*2/100))
+
+   attention = nn.RecurrentAttention(rnn, locator, rho, {hiddenSize})
+
+   -- model is a reinforcement learning agent
+   agent = nn.Sequential()
+   --agent:add(nn.Convert(ds:ioShapes(), 'bchw'))
+   agent:add(attention)
+
+   -- classifier :
+   agent:add(nn.SelectTable(-1))
+   agent:add(nn.Linear(hiddenSize, 5))
+   agent:add(nn.LogSoftMax())
+
+   -- add the baseline reward predictor
+   seq = nn.Sequential()
+   seq:add(nn.Constant(1,1))
+   seq:add(nn.Add(1))
+   concat = nn.ConcatTable():add(nn.Identity()):add(seq)
+   concat2 = nn.ConcatTable():add(nn.Identity()):add(concat)
+
+   -- output will be : {classpred, {classpred, basereward}}
+   agent:add(concat2)
+
+   return agent
+
 end
 
 -- Get the parameters of the model
@@ -61,7 +140,7 @@ end
 -- Switch to a different data mode
 function Model:type(tensortype)
    if tensortype ~= nil then
-      self.sequential = self:makeCleanSequential(self.sequential)
+      --self.sequential = self:makeCleanSequential(self.sequential)
       --self.sequential = self:makeCleanParallel(self.sequential)
       self.sequential:type(tensortype)
       self.tensortype = tensortype
@@ -229,7 +308,7 @@ function Model:makeCleanSequential(model)
    for i = 1,#model.modules do
       local m = Model:makeCleanModule(model.modules[i])
       if m then
-	 new:add(m)
+	     new:add(m)
       end
    end
    return new

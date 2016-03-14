@@ -68,17 +68,24 @@ function main.argparse()
       print("Run pinyin format and cnn model...")
       require("config_pinyin_cnn")
    elseif opt.format == "wb2d" and opt.model == "cnn" then
-      print("Run wubi format and cnn model...")
+      print("Run wubi 2d format and cnn model...")
       require("config_wb_cnn_2d")
    elseif opt.format == "wb2d" and opt.model == "lstm" then
-      print("Run wubi format and lstm model...")
+      print("Run wubi 2d format and lstm model...")
       require("config_wb_lstm_2d")
+   elseif opt.format == "wb3d" and opt.model == "att" then
+      print("Run wubi 3d format and attention model...")
+      require("config_wb_att_3d") 
+      require("train_att")
+      require("test_att")
+      config.model.attention = 1
    elseif opt.format == "wb3d" and opt.model == "cnn" then
-      print("Run wubi format and cnn model...")
-      require("config_wb_cnn_3d")
+      print("Run wubi 3d format and cnn model...")
+      require("config_wb_cnn_3d") 
    else 
       error("Wrong format")
    end
+
 
    -- Setting the device
    if opt.device > 0 then
@@ -142,11 +149,19 @@ function main.new()
 
    -- Initiate the trainer
    print("Loading the trainer...")
-   main.train = Train(main.train_data, main.model, config.loss(), config.train)
+   if opt.model == "att" then
+      main.train = Train_att(main.train_data, main.model, nil, config.train)
+   else
+      main.train = Train(main.train_data, main.model, config.loss(), config.train)
+   end
 
    -- Initiate the tester
    print("Loading the tester...")
-   main.test_val = Test(main.val_data, main.model, config.loss(), config.test)
+   if opt.model == "att" then
+      main.test_val = Test_att(main.val_data, main.model, nil, config.test)
+   else
+      main.test_val = Test(main.val_data, main.model, config.loss(), config.test)
+   end
 
    -- The record structure
    main.record = {}
@@ -167,8 +182,10 @@ function main.run()
 	     main.model:disableDropouts()
       end
       print("Training for era "..i)
-      if opt.format == "wb3d" then
+      if opt.format == "wb3d" and opt.model =="cnn" then
          main.train:run_wb_3d(config.main.epoches, main.trainlog)
+      elseif opt.format == "wb3d" and opt.model =="att" then
+         main.train:run_wb_3d_att(config.main.epoches, main.trainlog)
       elseif opt.format == "wb2d" and opt.model == "cnn" then
          main.train:run_wb_2d_cnn(config.main.epoches, main.trainlog)
       elseif opt.format == "wb2d" and opt.model == "lstm" then
@@ -185,8 +202,10 @@ function main.run()
             main.test_val:run_wb_2d_cnn(main.testlog)
          elseif opt.format == "wb2d" and opt.model == "lstm" then
             main.test_val:run_wb_2d_lstm(main.testlog)
-         elseif opt.format == "wb3d" then
+         elseif opt.format == "wb3d" and opt.model =="cnn" then
             main.test_val:run_wb_3d(main.testlog)
+         elseif opt.format == "wb3d" and opt.model =="att" then
+            main.test_val:run_wb_3d_att(main.testlog)
          else
             main.test_val:run(main.testlog)
          end
@@ -227,14 +246,17 @@ function main.save()
          lfs.mkdir(config.main.save)
    end
 
+   --[[
    -- Make the save
    local time = os.time()
    torch.save(paths.concat(config.main.save,"main_"..(main.train.epoch-1).."_".. opt.format .. "_" .. opt.model .. "_" ..
       config.train_data.length .."_"..config.dictsize.."_"..config.optim_name.."_"..time..".t7b"),
          {config = config, record = main.record, momentum = main.train.old_grads:double()})
+
    torch.save(paths.concat(config.main.save,"sequential_"..(main.train.epoch-1).."_".. opt.format .. "_" .. opt.model .. "_" ..
       config.train_data.length .."_"..config.dictsize.."_"..config.optim_name.."_"..time..".t7b"),
          main.model:clearSequential(main.model:makeCleanSequential(main.model.sequential)))
+   --]]
 
    collectgarbage()
 end
