@@ -48,7 +48,7 @@ function Model:getAttentionAgent()
    locationSensor = nn.Sequential()
    locationSensor:add(nn.SelectTable(2))
    locationSensor:add(nn.Linear(2, locatorHiddenSize))
-   locationSensor:add(nn.ReLU())
+   locationSensor:add(nn.Threshold())
 
    --[[
    glimpseSensor = nn.Sequential()
@@ -58,25 +58,25 @@ function Model:getAttentionAgent()
    glimpseSensor:add(nn.ReLU())
    --]]
    glimpseSensor = nn.Sequential()
-   glimpseSensor:add(nn.SpatialGlimpse({5, 60}, 1, 1))
-   glimpseSensor:add(nn.SpatialConvolution(4, 128, 5, 5, 5, 1))
-   glimpseSensor:add(nn.ReLU())
-   glimpseSensor:add(nn.SpatialMaxPooling(2,1))
+   glimpseSensor:add(nn.SpatialGlimpse({5, 30}, 1, 1))
+   glimpseSensor:add(nn.SpatialConvolution(4, 128, 30, 5, 1, 1))
+   glimpseSensor:add(nn.Threshold())
+   --glimpseSensor:add(nn.SpatialMaxPooling(2,1))
    glimpseSensor:add(nn.Collapse(3))
-   glimpseSensor:add(nn.Linear(768, glimpseHiddenSize))
-   glimpseSensor:add(nn.ReLU())
+   glimpseSensor:add(nn.Linear(128, glimpseHiddenSize))
+   glimpseSensor:add(nn.Threshold())
 
    glimpse = nn.Sequential()
    glimpse:add(nn.ConcatTable():add(locationSensor):add(glimpseSensor))
    glimpse:add(nn.JoinTable(1,1))
    glimpse:add(nn.Linear(glimpseHiddenSize+locatorHiddenSize, imageHiddenSize))
-   glimpse:add(nn.ReLU())
+   glimpse:add(nn.Threshold())
    glimpse:add(nn.Linear(imageHiddenSize, hiddenSize))
    
    recurrent = nn.FastLSTM(hiddenSize, hiddenSize)
 
    -- recurrent neural network
-   rnn = nn.Recurrent(hiddenSize, glimpse, recurrent, nn.ReLU(), 99999)
+   rnn = nn.Recurrent(hiddenSize, glimpse, recurrent, nn.Threshold(), 99999)
 
    -- actions (locator)
    locator = nn.Sequential()
