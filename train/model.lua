@@ -52,10 +52,12 @@ function Model:getAttentionAgent()
    locationSensor:add(nn.ReLU())
 
    glimpseSensor = nn.Sequential()
-   glimpseSensor:add(nn.DontCast(nn.SpatialGlimpse(glimpsePatchSize, glimpseDepth, glimpseScale):float(),true))
+   --glimpseSensor:add(nn.DontCast(nn.SpatialGlimpse(glimpsePatchSize, glimpseDepth, glimpseScale):float(),true))
+   glimpseSensor:add(nn.SpatialConvolution(4, 64, 5, 5, 5, 5))
    glimpseSensor:add(nn.Collapse(3))
-   glimpseSensor:add(nn.Linear(4*(glimpsePatchSize^2)*glimpseDepth, glimpseHiddenSize))
+   glimpseSensor:add(nn.Linear(6400, glimpseHiddenSize))
    glimpseSensor:add(nn.ReLU())
+
 
    glimpse = nn.Sequential()
    glimpse:add(nn.ConcatTable():add(locationSensor):add(glimpseSensor))
@@ -64,11 +66,13 @@ function Model:getAttentionAgent()
    glimpse:add(nn.ReLU())
    glimpse:add(nn.Linear(imageHiddenSize, hiddenSize))
 
+   return glimpse
+
+   --[[
    recurrent = nn.FastLSTM(hiddenSize, hiddenSize)
 
    -- recurrent neural network
    rnn = nn.Recurrent(hiddenSize, glimpse, recurrent, nn.ReLU(), 99999)
-
 
    -- actions (locator)
    locator = nn.Sequential()
@@ -101,6 +105,7 @@ function Model:getAttentionAgent()
    agent:add(concat2)
 
    return agent
+   --]]
 
 end
 
@@ -336,6 +341,8 @@ function Model:createModule(m)
       return Model:createSplitTable(m)
    elseif m.module == "nn.JoinTable" then
       return Model:createJoinTable(m)
+   elseif m.module == "nn.SelectTable" then
+      return Model:createSelectTable(m)
    elseif m.module == "nn.Transpose" then
       return Model:createTranspose(m)
    elseif m.module == "nn.Tanh" then
@@ -383,6 +390,8 @@ function Model:makeCleanModule(m)
       return Model:toSplitTable(m)
    elseif torch.typename(m) == "nn.JoinTable" then
       return Model:toJoinTable(m)
+   elseif torch.typename(m) == "nn.SelectTable" then
+      return Model:toSelectTable(m)
    elseif torch.typename(m) == "nn.Sequencer" then
       return Model:toSequencer(m)
    elseif torch.typename(m) == "nn.Mean" then
@@ -418,6 +427,10 @@ end
 
 function Model:createJoinTable(m)
    return nn.JoinTable(m.dimension)
+end
+
+function Model:createSelectTable(m)
+   return nn.SelectTable(m.dimension)
 end
 
 
@@ -557,6 +570,11 @@ end
 
 function Model:toJoinTable(m)
    local new = nn.JoinTable(m.dimension)
+   return new
+end
+
+function Model:toSelectTable(m)
+   local new = nn.SelectTable(m.dimension)
    return new
 end
 
