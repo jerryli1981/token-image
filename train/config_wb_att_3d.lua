@@ -16,14 +16,14 @@ config.dictsize = #alphabet
 
 -- Training data
 config.train_data = {}
-config.train_data.file = paths.concat(paths.cwd(), "../data/train_wb.t7b")
+config.train_data.file = paths.concat(paths.cwd(), "../data/train_wb_small.t7b")
 config.train_data.alphabet = alphabet
 config.train_data.length = config.seq_length
 config.train_data.batch_size = 128
 
 -- Validation data
 config.val_data = {}
-config.val_data.file =  paths.concat(paths.cwd(), "../data/test_wb.t7b")
+config.val_data.file =  paths.concat(paths.cwd(), "../data/test_wb_small.t7b")
 config.val_data.alphabet = alphabet
 config.val_data.length = config.seq_length
 config.val_data.batch_size = 128
