@@ -95,7 +95,7 @@ function getDataset()
    test_inputs, test_labels = getInputsAndLabels(test_data_file)
 
    train_size = train_inputs:size(1)
-   local nValid = math.floor(train_size*0.01)
+   local nValid = math.floor(train_size*0.1)
    local nTrain = train_size - nValid
 
    local trainInput = dp.ImageView('bchw', train_inputs:narrow(1, 1, nTrain))

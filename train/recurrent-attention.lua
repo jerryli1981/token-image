@@ -22,10 +22,10 @@ cmd:option('--saturateEpoch', 800, 'epoch at which linear decayed LR will reach 
 cmd:option('--momentum', 0.9, 'momentum')
 cmd:option('--maxOutNorm', -1, 'max norm each layers output neuron weights')
 cmd:option('--cutoffNorm', -1, 'max l2-norm of contatenation of all gradParam tensors')
-cmd:option('--batchSize', 20, 'number of examples per batch')
+cmd:option('--batchSize', 128, 'number of examples per batch')
 cmd:option('--cuda', 0, 'use CUDA')
 cmd:option('--useDevice', 1, 'sets the device (GPU) to use')
-cmd:option('--maxEpoch', 20, 'maximum number of epochs to run')
+cmd:option('--maxEpoch', 5000, 'maximum number of epochs to run')
 cmd:option('--maxTries', 100, 'maximum number of epochs to try to find a better local minima for early-stopping')
 cmd:option('--transfer', 'ReLU', 'activation function')
 cmd:option('--uniform', 0.1, 'initialize parameters using uniform distribution between -uniform and uniform. -1 means default initialization')
@@ -40,12 +40,11 @@ cmd:option('--stochastic', false, 'Reinforce modules forward inputs stochastical
 --[[ glimpse layer ]]--
 cmd:option('--glimpseHiddenSize', 128, 'size of glimpse hidden layer')
 cmd:option('--locatorHiddenSize', 128, 'size of locator hidden layer')
-cmd:option('--imageHiddenSize', 256, 'size of hidden layer combining glimpse and locator hiddens')
+cmd:option('--imageHiddenSize', 128, 'size of hidden layer combining glimpse and locator hiddens')
 
 --[[ recurrent layer ]]--
 cmd:option('--rho', 1, 'back-propagate through time (BPTT) for rho time-steps')
 cmd:option('--hiddenSize', 256, 'number of hidden units used in Simple RNN.')
-cmd:option('--FastLSTM', false, 'use LSTM instead of linear layer')
 
 --[[ data ]]--
 cmd:option('--trainEpochSize', -1, 'number of train examples seen between each epoch')
@@ -114,18 +113,11 @@ glimpse:add(nn.Linear(opt.glimpseHiddenSize+opt.locatorHiddenSize, opt.imageHidd
 glimpse:add(nn[opt.transfer]())
 glimpse:add(nn.Linear(opt.imageHiddenSize, opt.hiddenSize))
 
--- rnn recurrent layer
-if opt.FastLSTM then
-  recurrent = nn.FastLSTM(opt.hiddenSize, opt.hiddenSize)
-else
-  recurrent = nn.Linear(opt.hiddenSize, opt.hiddenSize)
-end
 
+recurrent = nn.FastLSTM(opt.hiddenSize, opt.hiddenSize)
 
 -- recurrent neural network
 rnn = nn.Recurrent(opt.hiddenSize, glimpse, recurrent, nn[opt.transfer](), 99999)
-imageSize = ds:imageSize('h')
---assert(ds:imageSize('h') == ds:imageSize('w'))
 
 -- actions (locator)
 locator = nn.Sequential()
