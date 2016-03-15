@@ -33,21 +33,39 @@ config.val_data.batch_size = 128
 
 -- The model
 config.model = {}
+-- 128 x 1600 x 25
 config.model[1] = {module = "nn.TemporalConvolution", inputFrameSize = #alphabet, outputFrameSize = 128, kW = 4, dW=4}
 config.model[2] = {module = "nn.Threshold"}
-config.model[3] = {module = "nn.TemporalMaxPooling", kW = 2, dW = 2}
+-- 128 x 400 x 128
+--config.model[3] = {module = "nn.TemporalMaxPooling", kW = 2, dW = 2}
 -- 336 x 256
-config.model[4] = {module = "nn.TemporalConvolution", inputFrameSize = 128, outputFrameSize = 128, kW = 4}
-config.model[5] = {module = "nn.Threshold"}
-config.model[6] = {module = "nn.TemporalMaxPooling", kW = 2, dW = 2}
+--config.model[4] = {module = "nn.TemporalConvolution", inputFrameSize = 128, outputFrameSize = 128, kW = 4}
+--config.model[5] = {module = "nn.Threshold"}
+--config.model[6] = {module = "nn.TemporalMaxPooling", kW = 2, dW = 2}
 
-config.model[7] = {module = "nn.SplitTable", dimension = 1, nInputDims = 2}
-config.model[8] = {module = "nn.Sequencer", inputSize=128, hiddenSize = config.lstmHiddenSize , seqLength = 98}
-config.model[9] = {module = "nn.JoinTable", dimension = 2}
-config.model[10] = {module = "nn.Reshape", dimension1 = config.train_data.batch_size, dimension2 = 98, dimension3 = config.lstmHiddenSize }
-config.model[11] = {module = "nn.Mean", dimension = 2}
-config.model[12] = {module = "nn.Linear",inputSize = config.lstmHiddenSize, outputSize = 5}
-config.model[13] = {module = "nn.LogSoftMax"}
+-- 110 x 256
+--config.model[7] = {module = "nn.TemporalConvolution", inputFrameSize = 128, outputFrameSize = 128, kW = 4}
+--config.model[8] = {module = "nn.Threshold"}
+-- 108 x 256
+--config.model[9] = {module = "nn.TemporalConvolution", inputFrameSize = 128, outputFrameSize = 128, kW = 4}
+--config.model[10] = {module = "nn.Threshold"}
+-- 106 x 256
+--config.model[11] = {module = "nn.TemporalConvolution", inputFrameSize = 128, outputFrameSize = 128, kW = 4}
+--config.model[12] = {module = "nn.Threshold"}
+-- 104 x 256
+--config.model[13] = {module = "nn.TemporalConvolution", inputFrameSize = 128, outputFrameSize = 128, kW = 4}
+--config.model[14] = {module = "nn.Threshold"}
+--config.model[15] = {module = "nn.TemporalMaxPooling", kW = 2, dW = 2}
+
+
+config.model[3] = {module = "nn.SplitTable", dimension = 1, nInputDims = 2}
+config.model[4] = {module = "nn.Sequencer", inputSize=128, hiddenSize = config.lstmHiddenSize , seqLength = 400}
+--config.model[18] = {module = "nn.JoinTable", dimension = 2}
+--config.model[19] = {module = "nn.Reshape", dimension1 = config.train_data.batch_size, dimension2 = 43, dimension3 = config.lstmHiddenSize }
+--config.model[20] = {module = "nn.Mean", dimension = 2}
+config.model[5] = {module = "nn.SelectTable", dimension = -1}
+config.model[6] = {module = "nn.Linear",inputSize = config.lstmHiddenSize, outputSize = 5}
+config.model[7] = {module = "nn.LogSoftMax"}
 
 -- The loss
 config.loss = nn.ClassNLLCriterion
