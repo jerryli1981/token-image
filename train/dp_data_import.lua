@@ -11,7 +11,7 @@ for i = 1,#alphabet do
    dict[alphabet:sub(i,i)] = i
 end
 
-length = 100
+length = 400
 
 function sequenceTo3DTensor(str, l, input)
 
@@ -45,20 +45,15 @@ function sequenceTo3DTensor(str, l, input)
       end
    end
 
-   local idx = 1
-   for i=1, 5*math.sqrt(length), 5 do
-      for j=1, 5*math.sqrt(length), 5 do
-         for k=1, 4 do
-            input[k][{{i,i+4},{j,j+4}}] = tmp[idx][k]
-         end
-         idx = idx + 1
-      end
+   local tmp2 = nn.JoinTable(3):forward(tmp)
+   for i=1, 4 do
+      input[i] = tmp2[i] 
    end
 end
 
 function getInputsAndLabels(data_file)
    data = torch.load(data_file)
-   inputs = torch.Tensor(data.size, 4, 5*math.sqrt(length), 5*math.sqrt(length))
+   inputs = torch.Tensor(data.size, 4, 5, 5*length)
    labels = torch.IntTensor(data.size):fill(0)
 
    idx = 1
@@ -76,7 +71,7 @@ function getInputsAndLabels(data_file)
 
    local shuffle = torch.randperm(labels:size(1)) -- shuffle the data
 
-   shuffled_inputs = torch.Tensor(labels:size(1), 4, 5*math.sqrt(length), 5*math.sqrt(length))
+   shuffled_inputs = torch.Tensor(labels:size(1), 4, 5, 5*length)
    shuffled_labels = torch.IntTensor(data.size):fill(0)
 
    for i=1,labels:size(1) do
@@ -100,7 +95,7 @@ function getDataset()
    test_inputs, test_labels = getInputsAndLabels(test_data_file)
 
    train_size = train_inputs:size(1)
-   local nValid = math.floor(train_size*0.1)
+   local nValid = math.floor(train_size*0.01)
    local nTrain = train_size - nValid
 
    local trainInput = dp.ImageView('bchw', train_inputs:narrow(1, 1, nTrain))

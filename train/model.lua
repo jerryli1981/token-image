@@ -36,14 +36,14 @@ end
 function Model:getAttentionAgent()
 
    locatorHiddenSize = 128
-   glimpsePatchSize=8
+   glimpsePatchSize={5, 20}
    glimpseDepth = 1
-   glimpseScale = 2
+   glimpseScale = 1
    glimpseHiddenSize=128
    imageHiddenSize= 256
    hiddenSize=256
    locatorStd=0.11
-   unitPixels=13
+   unitPixels=25
    rho=7
 
    locationSensor = nn.Sequential()
@@ -52,12 +52,10 @@ function Model:getAttentionAgent()
    locationSensor:add(nn.ReLU())
 
    glimpseSensor = nn.Sequential()
-   --glimpseSensor:add(nn.DontCast(nn.SpatialGlimpse(glimpsePatchSize, glimpseDepth, glimpseScale):float(),true))
-   glimpseSensor:add(nn.SpatialConvolution(4, 64, 5, 5, 5, 5))
+   glimpseSensor:add(nn.DontCast(nn.SpatialGlimpse(glimpsePatchSize, glimpseDepth, glimpseScale):float(),true))
    glimpseSensor:add(nn.Collapse(3))
-   glimpseSensor:add(nn.Linear(6400, glimpseHiddenSize))
+   glimpseSensor:add(nn.Linear(4*100*glimpseDepth, glimpseHiddenSize))
    glimpseSensor:add(nn.ReLU())
-
 
    glimpse = nn.Sequential()
    glimpse:add(nn.ConcatTable():add(locationSensor):add(glimpseSensor))
@@ -65,10 +63,7 @@ function Model:getAttentionAgent()
    glimpse:add(nn.Linear(glimpseHiddenSize+locatorHiddenSize, imageHiddenSize))
    glimpse:add(nn.ReLU())
    glimpse:add(nn.Linear(imageHiddenSize, hiddenSize))
-
-   return glimpse
-
-   --[[
+   
    recurrent = nn.FastLSTM(hiddenSize, hiddenSize)
 
    -- recurrent neural network
@@ -80,7 +75,7 @@ function Model:getAttentionAgent()
    locator:add(nn.HardTanh()) -- bounds mean between -1 and 1
    locator:add(nn.ReinforceNormal(2*locatorStd)) -- sample from normal, uses REINFORCE learning rule
    locator:add(nn.HardTanh()) -- bounds sample between -1 and 1
-   locator:add(nn.MulConstant(unitPixels*2/100))
+   --locator:add(nn.MulConstant(unitPixels*2/100))
 
    attention = nn.RecurrentAttention(rnn, locator, rho, {hiddenSize})
 
@@ -105,7 +100,6 @@ function Model:getAttentionAgent()
    agent:add(concat2)
 
    return agent
-   --]]
 
 end
 

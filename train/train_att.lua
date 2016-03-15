@@ -92,7 +92,6 @@ function Train_att:batchStep_wb_3d_att()
    self.clock = sys.clock()
    -- Forward propagation
    self.output = self.model:forward(self.batch)
-
    
    self.objective = self.loss:forward(self.output,self.labels)
 

@@ -7,7 +7,6 @@ include('dp_data_import.lua')
 -- A. http://papers.nips.cc/paper/5542-recurrent-models-of-visual-attention.pdf
 -- B. http://incompleteideas.net/sutton/williams-92.pdf
 
-
 version = 12
 
 --[[command line arguments]]--
@@ -32,24 +31,19 @@ cmd:option('--transfer', 'ReLU', 'activation function')
 cmd:option('--uniform', 0.1, 'initialize parameters using uniform distribution between -uniform and uniform. -1 means default initialization')
 cmd:option('--xpPath', '', 'path to a previously saved model')
 cmd:option('--progress', false, 'print progress bar')
-cmd:option('--silent', false, 'dont print anything to stdout')
 
 --[[ reinforce ]]--
 cmd:option('--rewardScale', 1, "scale of positive reward (negative is 0)")
-cmd:option('--unitPixels', 13, "the locator unit (1,1) maps to pixels (13,13), or (-1,-1) maps to (-13,-13)")
 cmd:option('--locatorStd', 0.11, 'stdev of gaussian location sampler (between 0 and 1) (low values may cause NaNs)')
 cmd:option('--stochastic', false, 'Reinforce modules forward inputs stochastically during evaluation')
 
 --[[ glimpse layer ]]--
 cmd:option('--glimpseHiddenSize', 128, 'size of glimpse hidden layer')
-cmd:option('--glimpsePatchSize', 8, 'size of glimpse patch at highest res (height = width)')
-cmd:option('--glimpseScale', 2, 'scale of successive patches w.r.t. original input image')
-cmd:option('--glimpseDepth', 1, 'number of concatenated downscaled patches')
 cmd:option('--locatorHiddenSize', 128, 'size of locator hidden layer')
 cmd:option('--imageHiddenSize', 256, 'size of hidden layer combining glimpse and locator hiddens')
 
 --[[ recurrent layer ]]--
-cmd:option('--rho', 7, 'back-propagate through time (BPTT) for rho time-steps')
+cmd:option('--rho', 1, 'back-propagate through time (BPTT) for rho time-steps')
 cmd:option('--hiddenSize', 256, 'number of hidden units used in Simple RNN.')
 cmd:option('--FastLSTM', false, 'use LSTM instead of linear layer')
 
@@ -58,17 +52,11 @@ cmd:option('--trainEpochSize', -1, 'number of train examples seen between each e
 cmd:option('--validEpochSize', -1, 'number of valid examples used for early stopping and cross-validation')
 cmd:option('--noTest', false, 'dont propagate through the test set')
 cmd:option('--overwrite', false, 'overwrite checkpoint')
-cmd:option("--debug",0,"debug. 0 means not debug.")
+
 
 cmd:text()
 local opt = cmd:parse(arg or {})
-if not opt.silent then
-   table.print(opt)
-end
 
-if opt.debug > 0 then
-   dbg = require("debugger")
-end
 
 if opt.xpPath ~= '' then
    -- check that saved model exists
@@ -104,11 +92,20 @@ locationSensor:add(nn.SelectTable(2))
 locationSensor:add(nn.Linear(2, opt.locatorHiddenSize))
 locationSensor:add(nn[opt.transfer]())
 
+--glimpseSensor = nn.Sequential()
+--glimpseSensor:add(nn.DontCast(nn.SpatialGlimpse(opt.glimpsePatchSize, opt.glimpseDepth, opt.glimpseScale):float(),true))
+--glimpseSensor:add(nn.Collapse(3))
+--glimpseSensor:add(nn.Linear(ds:imageSize('c')*(opt.glimpsePatchSize^2)*opt.glimpseDepth, opt.glimpseHiddenSize))
+--glimpseSensor:add(nn[opt.transfer]())
+
 glimpseSensor = nn.Sequential()
-glimpseSensor:add(nn.DontCast(nn.SpatialGlimpse(opt.glimpsePatchSize, opt.glimpseDepth, opt.glimpseScale):float(),true))
+glimpseSensor:add(nn.SpatialGlimpse({5, 60}, 1, 1))
+glimpseSensor:add(nn.SpatialConvolution(4, 128, 5, 5, 5, 1))
+glimpseSensor:add(nn.ReLU())
+glimpseSensor:add(nn.SpatialMaxPooling(2,1))
 glimpseSensor:add(nn.Collapse(3))
-glimpseSensor:add(nn.Linear(ds:imageSize('c')*(opt.glimpsePatchSize^2)*opt.glimpseDepth, opt.glimpseHiddenSize))
-glimpseSensor:add(nn[opt.transfer]())
+glimpseSensor:add(nn.Linear(768, opt.glimpseHiddenSize))
+glimpseSensor:add(nn.ReLU())
 
 glimpse = nn.Sequential()
 glimpse:add(nn.ConcatTable():add(locationSensor):add(glimpseSensor))
@@ -128,7 +125,7 @@ end
 -- recurrent neural network
 rnn = nn.Recurrent(opt.hiddenSize, glimpse, recurrent, nn[opt.transfer](), 99999)
 imageSize = ds:imageSize('h')
-assert(ds:imageSize('h') == ds:imageSize('w'))
+--assert(ds:imageSize('h') == ds:imageSize('w'))
 
 -- actions (locator)
 locator = nn.Sequential()
@@ -137,7 +134,7 @@ locator:add(nn.HardTanh()) -- bounds mean between -1 and 1
 locator:add(nn.ReinforceNormal(2*opt.locatorStd, opt.stochastic)) -- sample from normal, uses REINFORCE learning rule
 assert(locator:get(3).stochastic == opt.stochastic, "Please update the dpnn package : luarocks install dpnn")
 locator:add(nn.HardTanh()) -- bounds sample between -1 and 1
-locator:add(nn.MulConstant(opt.unitPixels*2/ds:imageSize("h")))
+--locator:add(nn.MulConstant(opt.unitPixels*2/ds:imageSize("h")))
 
 attention = nn.RecurrentAttention(rnn, locator, opt.rho, {opt.hiddenSize})
 
@@ -210,6 +207,7 @@ valid = dp.Evaluator{
    sampler = dp.Sampler{epoch_size = opt.validEpochSize, batch_size = opt.batchSize},
    progress = opt.progress
 }
+
 if not opt.noTest then
    tester = dp.Evaluator{
       feedback = dp.Confusion{output_module=nn.SelectTable(1)},
