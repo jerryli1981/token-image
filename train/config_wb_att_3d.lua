@@ -10,7 +10,7 @@ config = {}
 
 local alphabet = "qwertyuiopasdfghjklmxcvbn"
 
-config.seq_length = 100
+config.seq_length = 400
 
 config.dictsize = #alphabet
 

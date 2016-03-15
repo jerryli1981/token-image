@@ -36,25 +36,34 @@ end
 function Model:getAttentionAgent()
 
    locatorHiddenSize = 128
-   glimpsePatchSize={5, 20}
+   glimpsePatchSize={5, 60}
    glimpseDepth = 1
    glimpseScale = 1
    glimpseHiddenSize=128
    imageHiddenSize= 256
    hiddenSize=256
    locatorStd=0.11
-   unitPixels=25
-   rho=7
+   rho=1
 
    locationSensor = nn.Sequential()
    locationSensor:add(nn.SelectTable(2))
    locationSensor:add(nn.Linear(2, locatorHiddenSize))
    locationSensor:add(nn.ReLU())
 
+   --[[
    glimpseSensor = nn.Sequential()
    glimpseSensor:add(nn.DontCast(nn.SpatialGlimpse(glimpsePatchSize, glimpseDepth, glimpseScale):float(),true))
    glimpseSensor:add(nn.Collapse(3))
    glimpseSensor:add(nn.Linear(4*100*glimpseDepth, glimpseHiddenSize))
+   glimpseSensor:add(nn.ReLU())
+   --]]
+   glimpseSensor = nn.Sequential()
+   glimpseSensor:add(nn.SpatialGlimpse({5, 60}, 1, 1))
+   glimpseSensor:add(nn.SpatialConvolution(4, 128, 5, 5, 5, 1))
+   glimpseSensor:add(nn.ReLU())
+   glimpseSensor:add(nn.SpatialMaxPooling(2,1))
+   glimpseSensor:add(nn.Collapse(3))
+   glimpseSensor:add(nn.Linear(768, glimpseHiddenSize))
    glimpseSensor:add(nn.ReLU())
 
    glimpse = nn.Sequential()
