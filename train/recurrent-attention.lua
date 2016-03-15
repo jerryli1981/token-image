@@ -91,12 +91,13 @@ locationSensor:add(nn.SelectTable(2))
 locationSensor:add(nn.Linear(2, opt.locatorHiddenSize))
 locationSensor:add(nn[opt.transfer]())
 
---glimpseSensor = nn.Sequential()
---glimpseSensor:add(nn.DontCast(nn.SpatialGlimpse(opt.glimpsePatchSize, opt.glimpseDepth, opt.glimpseScale):float(),true))
---glimpseSensor:add(nn.Collapse(3))
---glimpseSensor:add(nn.Linear(ds:imageSize('c')*(opt.glimpsePatchSize^2)*opt.glimpseDepth, opt.glimpseHiddenSize))
---glimpseSensor:add(nn[opt.transfer]())
+glimpseSensor = nn.Sequential()
+glimpseSensor:add(nn.DontCast(nn.SpatialGlimpse({5, 60}, 1, 1):float(),true))
+glimpseSensor:add(nn.Collapse(3))
+glimpseSensor:add(nn.Linear(1200, opt.glimpseHiddenSize))
+glimpseSensor:add(nn[opt.transfer]())
 
+--[[
 glimpseSensor = nn.Sequential()
 glimpseSensor:add(nn.SpatialGlimpse({5, 60}, 1, 1))
 glimpseSensor:add(nn.SpatialConvolution(4, 128, 5, 5, 5, 1))
@@ -105,6 +106,7 @@ glimpseSensor:add(nn.SpatialMaxPooling(2,1))
 glimpseSensor:add(nn.Collapse(3))
 glimpseSensor:add(nn.Linear(768, opt.glimpseHiddenSize))
 glimpseSensor:add(nn.ReLU())
+--]]
 
 glimpse = nn.Sequential()
 glimpse:add(nn.ConcatTable():add(locationSensor):add(glimpseSensor))
