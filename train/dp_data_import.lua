@@ -88,8 +88,8 @@ end
 
 function getDataset()
 
-   train_data_file = paths.concat(paths.cwd(), "../data/train_wb_small.t7b")
-   test_data_file = paths.concat(paths.cwd(), "../data/test_wb_small.t7b")
+   train_data_file = paths.concat(paths.cwd(), "../data/train_wb.t7b")
+   test_data_file = paths.concat(paths.cwd(), "../data/test_wb.t7b")
 
    train_inputs, train_labels = getInputsAndLabels(train_data_file)
    test_inputs, test_labels = getInputsAndLabels(test_data_file)
