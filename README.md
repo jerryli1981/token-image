@@ -1,1 +1,1 @@
-# python-stroke
+# This is the code of transforming a token into image representation.
