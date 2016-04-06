@@ -1,1 +1,1 @@
-# This is the code of transforming a token into image representation.
+This is the code of transforming a token into image representation.
